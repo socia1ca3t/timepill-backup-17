@@ -1,0 +1,28 @@
+# 生产
+
+server:
+  servlet:
+    session:
+      persistent: true
+      cookie:
+        http-only: true
+      timeout: 60m
+  error:
+    path: /error
+  port: 8080
+  tomcat:
+    accesslog:
+      enabled: true
+      file-date-format: .yyyy-MM-dd
+      suffix: .log
+      prefix: access_log
+      directory: tomcat
+      pattern: common
+    basedir: /opt/logs/
+
+
+# 根据使用环境配置
+# 数据源
+spring.datasource.url: jdbc:h2:/opt/timepill-backup/db/data
+# 所有下载文件的存放路径
+timepill.fileBasePath: /opt/temp-back-file/

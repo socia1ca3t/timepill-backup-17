@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>胶囊备份</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/bulma.min.css"/>
+    <link rel="stylesheet" href="/icons/css/font-awesome.min.css"/>
+    <script type="text/javascript" src="/icons/js/all.min.js"></script>
+</head>
+<body>
+<input type="hidden" id="prepareCode" th:value="${prepareCode}"/>
+<input type="hidden" id="logId" th:value="${logId}"/>
+<input type="hidden" id="zipFileName" th:value="${zipFileName}"/>
+<section class="section">
+    <div class="container is-max-desktop" style="max-width: 680px; ">
+        <div class="content" id="progressBox">
+
+            <figure class="is-marginless">
+                <img src="/images/3d-flame-man.png">
+            </figure>
+            <br>
+            <br>
+            <br>
+            <article>
+                <div id="msgDIV" style="text-align: center; font-size: 18px;">
+                    剩余任务数量：
+                    <span id="restTaskNum" class="is-size-1">计算中</span>
+                </div>
+            </article>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <article style="text-align: center; font-size: 18px; color: slategray;">
+                <div class="is-center">
+                   <span class="is-inline-flex">
+                      <span class="icon">
+                        <i class="fa-solid fa-info"></i>
+                      </span>
+                      <span id="warnMsg">备份文件的解压密码是你的胶囊账号</span>
+                   </span>
+                </div>
+            </article>
+            <br>
+            <br>
+            <br>
+        </div>
+        <form class="box" id="commentBox" style="display: none;" th:action="'/download/evaluation/' + ${logId}"
+              method="post">
+            <div class="filed has-text-centered">
+                <div class="is-center">
+                   <span class="is-inline-flex">
+                      <span class="icon">
+                        <i class="fa-solid fa-info"></i>
+                      </span>
+                      <span id="commentBoxWarnMsg">备份文件的解压密码是你的胶囊账号</span>
+                   </span>
+                </div>
+            </div>
+            <br>
+            <div class="field">
+                <div class="control">
+                    <textarea class="textarea" name="evaluation" placeholder="请输入你的反馈或建议，或者直接关闭页面"
+                              maxlength="500" required></textarea>
+                </div>
+            </div>
+            <br>
+            <button class="button is-success is-fullwidth">提交</button>
+        </form>
+    </div>
+</section>
+</body>
+<script type="text/javascript">
+
+
+    const backupEnd = {
+
+        lastStep: 0,
+
+        showMsg: (msg) => document.getElementById("commentBoxWarnMsg").innerHTML = msg,
+
+        // 文件准备完毕之后，评论框上部轮播消息
+        pollingWarnMsg: function () {
+
+            if (this.lastStep == 0) {
+                this.showMsg('备份文件的解压密码是你的胶囊账号');
+                this.lastStep = 1;
+
+            } else if (this.lastStep == 1) {
+                this.showMsg('若仍未开始下载文件，请刷新本页面');
+                this.lastStep = 2;
+
+            } else if (this.lastStep == 2) {
+                this.showMsg('请注意，手机息屏可能会导致文件下载失败');
+                this.lastStep = 0;
+            }
+        },
+
+        countdownForDownload: function () {
+
+            document.getElementById("msgDIV").innerHTML = "<span id='countDown' class='is-size-1'>3</span>&nbsp;秒后开始自动下载";
+
+            const interval = window.setInterval(function () {
+
+                const countDownNode = document.getElementById("countDown");
+                countDownNode.innerHTML = countDownNode.innerHTML - 1;
+            }, 1000);
+
+            return interval;
+        },
+
+        downloadBackupFile: function () {
+
+            const downloadFileURL = "/download/backup/"
+                + document.getElementById("zipFileName").value
+                + "?prepareCode=" + document.getElementById("prepareCode").value;
+
+            console.log("开始下载文件");
+
+            window.open(downloadFileURL, "_blank");
+        },
+
+        showCommentBox: function () {
+
+            if (document.getElementById("logId").value != "") {
+                // 显示评价框
+                document.getElementById("commentBox").style.display = "";
+                document.getElementById("progressBox").style.display = "none";
+            }
+        }
+    }
+
+
+    const showProgressSSE = {
+
+        lastUpdateMilliseconds: null,
+        lastEventSource: null,
+        lastStateData: null,
+        healthyCheckTask: null,
+        url: "/download/progress/" + document.getElementById("prepareCode").value + "?logId=" + document.getElementById("logId").value,
+
+        onBackupFinished: function () {
+
+            const interval = backupEnd.countdownForDownload();
+
+            window.setTimeout(() => {
+
+                window.clearInterval(interval);
+                window.setInterval(backupEnd.pollingWarnMsg, 3000);
+
+                backupEnd.downloadBackupFile();
+                backupEnd.showCommentBox();
+            }, 3000);
+        },
+
+        refreshState: function (stateData) {
+
+            if (stateData.state == 'READY') {
+                document.getElementById("msgDIV").innerHTML = "任务启动";
+
+            } else if (stateData.state == 'FINISHED') {
+
+                if (this.healthyCheckTask != null) {
+                    window.clearInterval(this.healthyCheckTask);
+                }
+                this.lastEventSource.close();
+                this.onBackupFinished();
+
+            } else if (stateData.state == 'EXCEPTION') {
+                document.getElementById("msgDIV").innerHTML = stateData.msg;
+
+            } else if (stateData.state == 'COMPRESSING') {
+                document.getElementById("msgDIV").innerHTML = "正在压缩";
+
+            } else if (stateData.state == 'DOWNLOADING') {
+                document.getElementById("restTaskNum").innerHTML = stateData.restTaskNum;
+            }
+        },
+
+        doUpdateSSE: function () {
+
+            if (this.lastStateData != null && this.lastStateData.state == 'FINISHED') {
+                return;
+            }
+
+            const source = new EventSource(this.url);
+
+            console.log("开启EventSource连接");
+            this.lastEventSource = source;
+            this.lastUpdateMilliseconds = new Date().getTime();
+
+            source.onmessage = (event) => {
+
+                const stateData = JSON.parse(event.data);
+                console.log(stateData);
+
+                this.refreshState(stateData);
+                this.lastStateData = stateData;
+                this.lastUpdateMilliseconds = new Date().getTime();
+            };
+
+            source.onerror = (event) => console.log("EventSource错误：", event);
+        },
+        /**
+         * safari 在息屏或切换至后台时，会断开网络连接，导致无法收到事件
+         * 故每隔 3S 检测 lastEventSource 状态，若连接被关闭，则重新发起 event 连接
+         **/
+        doHealthyCheck: function () {
+
+            const healthyCheck = window.setInterval(() => {
+
+                if (this.lastStateData != null && this.lastStateData.state == 'FINISHED' && this.lastStateData.state == 'EXCEPTION') {
+                    window.clearInterval(healthyCheck);
+                }
+
+                if (this.lastEventSource != null && this.lastEventSource.readyState === EventSource.CLOSED) {
+                    console.log('连接已关闭，重新发起SSE');
+                    this.lastEventSource.close();
+                    this.doUpdateSSE();
+                }
+
+            }, 3000);
+
+            this.healthyCheckTask = healthyCheck;
+        }
+    }
+
+    const backuping = {
+
+        lastStep: 0,
+
+        showMsg: (msg) => document.getElementById("warnMsg").innerHTML = msg,
+
+        // 文件准备完成之前，轮播消息
+        pollingWarnMsg: function () {
+
+            if (this.lastStep == 0) {
+                this.showMsg('备份文件的解压密码是你的胶囊账号');
+                this.lastStep = 1;
+
+            } else if (this.lastStep == 1) {
+                this.showMsg('关闭或刷新页面不会影响任务进度');
+                this.lastStep = 0;
+            }
+        }
+    }
+
+    window.setInterval(backuping.pollingWarnMsg, 3000);
+
+    showProgressSSE.doUpdateSSE();
+    showProgressSSE.doHealthyCheck();
+
+
+</script>
+</html>

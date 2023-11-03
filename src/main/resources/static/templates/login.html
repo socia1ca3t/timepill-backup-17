@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>日记备份</title>
+    <link rel="stylesheet" href="/css/bulma.min.css">
+    <link rel="stylesheet" href="/icons/css/font-awesome.min.css">
+</head>
+<body>
+
+<section class="section is-fullheight">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-5-tablet is-4-desktop is-4-widescreen">
+                    <form class="box" th:action="@{/login}" method="post">
+                        <div class="filed has-text-centered">
+                            <img src="/images/moya_cartoon_70.png">
+                        </div>
+                        <br>
+                        <div class="field">
+                            <label class="label">Account</label>
+                            <div class="control">
+                                <input class="input" type="text" name="username" placeholder="email or phone" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Password</label>
+                            <div class="control">
+                                <input class="input" type="password" name="password" placeholder="*******" required>
+                            </div>
+                        </div>
+                        <p class="default-color0" th:remove="${errorMsg == null || errorMsg == ''} ? all">
+                            <span class="icon has-text-danger">
+                                <i class="fa fa-ban"></i>
+                            </span>
+                            <span th:text="${errorMsg}">错误信息</span>
+                        </p>
+                        <br>
+                        <button class="button is-success is-fullwidth">Sign in</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

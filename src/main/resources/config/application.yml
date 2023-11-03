@@ -1,0 +1,52 @@
+#Spring Boot will automatically find and load application.properties
+#and application.yaml files from the following locations when your application starts:
+#
+#1. From the classpath
+#   The classpath root
+#   The classpath /config package
+
+#2. From the current directory
+#   The current directory
+#   The config/ subdirectory in the current directory
+#   Immediate child directories of the config/ subdirectory
+
+spring:
+  profiles:
+    active: dev
+
+  security.strategy: MODE_GLOBAL
+
+
+  thymeleaf:
+    prefix: classpath:/static/templates/
+    cache: false
+    encoding: UTF-8
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate.ddl-auto: create
+    show-sql: true
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2.console.enabled: false
+  h2.console.path: /moyaDB-console
+
+
+  web.resources.static-locations: classpath:/META-INF/resources/, classpath:/static/, file:${timepill.fileBasePath}
+
+
+timepill:
+  roleAdmins:
+  notebookBackgroudImg:
+  indexURL: https://timepill.net
+  userHomeURL: https://timepill.net/home/
+  notebookURL: https://timepill.net/notebook/
+  apiUserURL: https://open.timepill.net/api/users/my
+  apiTopicNotebookURL: https://open.timepill.net/api/notebooks/
+  apiNotebookListURL: https://open.timepill.net/api/notebooks/my
+  apiDiaryURL: https://open.timepill.net/api/notebooks/{notebookId}/diaries?page={num}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/main.css?v=180423-khwnx"/>
+</head>
+<body>
+<div id="page-main" class="container">
+    <div class="main diaries">
+        <h1 class="page-header" th:text="${notebookName}"></h1>
+        <div id="diarys">
+            <div class="diary" th:each="diary:${diarys}">
+                <div class="body body-no-icon">
+                    <div class="title" th:text="${diary.getPostTime()}"></div>
+                    <pre class="content" th:utext="${diary.getContentText()}">
+
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

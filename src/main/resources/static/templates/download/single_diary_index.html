@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>日记</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="css/bulma.min.css"/>
+
+</head>
+<style type="text/css">
+
+    .notebook-title > .box {
+        border-top: 1px solid #e8e8e8;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .box {
+        border-radius: unset;
+        box-shadow: unset;
+    }
+
+    .diaries > .box:not(:last-child) {
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .heading {
+        color: #b5b5b5;
+    }
+
+    .column {
+        padding: 0 0.75rem;
+        border: 1px solid #e8e8e8;
+        border-radius: 5px;
+        box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%);
+    }
+
+    .box:not(:last-child).content:not(:last-child) {
+        margin-bottom: unset;
+    }
+
+    .footer {
+        background-color: #fafafa;
+        padding: 1rem;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
+</style>
+
+<body>
+
+
+<section id="notebook" class="section" style="margin-bottom: 80px; padding: 1.6rem 1.5rem;">
+
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-12-tablet is-8-desktop is-6-widescreen diaries">
+                <div class="box content">
+                    <p id="notebookName" class="has-text-weight-bold is-size-4" style="margin-bottom: 10px;"
+                       th:text="' ' + ${diariesIndexVO.getNoteBook().getName()} + ' '">
+                        笔记本名称
+                    </p>
+                    <p style="color: #b5b5b5;"
+                       th:text="${diariesIndexVO.getNoteBook().getCreateDate() + ' 至 ' + diariesIndexVO.getNoteBook().getExpireDate()}">
+                        2022-01-09 至 2022-01-05</p>
+                    <div class="field is-grouped is-grouped-multiline">
+
+                        <div class="control">
+                            <div class="tags has-addons">
+                                <span class="tag is-dark">图片</span>
+                                <span class="tag is-success"
+                                      th:text="${diariesIndexVO.getStatisticData().getImagesDiariesNum()}">10</span>
+                            </div>
+                        </div>
+
+                        <div class="control">
+                            <div class="tags has-addons">
+                                <span class="tag is-dark">文字</span>
+                                <span class="tag is-success"
+                                      th:text="${diariesIndexVO.getStatisticData().getTextDiariesNum()}">10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box content is-normal is-size-7-mobile" th:each="diary:${diariesIndexVO.getDiaries()}">
+                    <p th:text="${diary.getPostTime()}" style="color: #b5b5b5;">2022-08-18 20：12：35</p>
+
+                    <p style="white-space: pre-line" th:text="${diary.getContentText()}">笔记内容</p>
+                    <p class="is-marginless" th:remove="${diary.getImgSrc() == null || diary.getImgSrc() == ''} ? all">
+                        <img alt="image" class="diary-img" th:src="${diary.getImgSrc()} "
+                             onerror="javascript:setTimeout(() => { this.src=this.src; }, 1000);">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

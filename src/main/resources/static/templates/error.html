@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>502</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="referrer" content="no-referrer">
+</head>
+<body>
+<div id="page-main" class="container">
+    <div class="main">
+        <img src="/images/error.png"/>
+        <h1 style="padding-left: 15px;">
+            <div th:text="${status}">错误代码</div>
+            <div th:text="${error}">错误信息</div>
+            <a href="/">返回首页</a>
+        </h1>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<div id="page-main" class="container">
+    <div class="main diaries">
+        <h1 class="page-header" th:text="${notebookName}"></h1>
+        <div id="diarys">
+            <div class="diary" th:each="diary:${diarys}">
+                <div class="body body-no-icon">
+                    <div class="title" th:text="${diary.getPostTime()}"></div>
+                    <pre class="content" th:utext="${diary.getContentText()}">
+
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<style type="text/css">
+
+    /*设定纸张大小*/
+    /* A4纸 */
+    /* @page{size:210mm*297mm} */
+    @page {
+        size: a4
+    }
+
+    html {
+        color: #000;
+        background: #FFF
+    }
+
+    body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
+        margin: 0;
+        padding: 0
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0
+    }
+
+    fieldset, img {
+        border: 0
+    }
+
+    address, caption, cite, code, dfn, em, strong, th, var {
+        font-style: normal;
+        font-weight: normal
+    }
+
+    ol, ul {
+        list-style: none
+    }
+
+    caption, th {
+        text-align: left
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 100%;
+        font-weight: normal
+    }
+
+    q:before, q:after {
+        content: ''
+    }
+
+    abbr, acronym {
+        border: 0;
+        font-variant: normal
+    }
+
+    sup {
+        vertical-align: text-top
+    }
+
+    sub {
+        vertical-align: text-bottom
+    }
+
+    input, textarea, select {
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit
+    }
+
+    input, textarea, select {
+        *font-size: 100%
+    }
+
+    legend {
+        color: #000
+    }
+
+    body {
+        font-size: 13px;
+        color: #333;
+        padding-top: 60px;
+        font-family: 'Microsoft YaHei UI', 'Microsoft YaHei', "MicrosoftJhengHei", STHeiti, MingLiu, serif;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -o-pre-wrap;
+    }
+
+    pre {
+        #word-break: break-all;
+        #word-wrap: break-word;
+        _word-break: break-all;
+        _word-wrap: break-word;
+    }
+
+    a {
+        text-decoration: none;
+        color: #2E8BCC;
+    }
+
+    a:hover {
+        background-color: #39E;
+        color: #fff;
+    }
+
+    h1 {
+        font-size: 28px;
+        line-height: 42px;
+        padding-bottom: 30px;
+    }
+
+    h2 {
+        font-size: 18px;
+        line-height: 42px;
+    }
+
+    h3 {
+        font-size: 16px;
+        line-height: 24px;
+    }
+
+    .container {
+        width: 690px;
+        margin: 0 auto;
+        padding: 0 10px;
+    }
+
+    .page-header {
+        font-size: 28px;
+        line-height: 28px;
+        padding-bottom: 40px;
+    }
+
+    .page-header a.tab {
+        color: #b5b5b5;
+    }
+
+    .page-header a.tab:hover {
+        color: #2E8BCC;
+        background-color: transparent;
+    }
+
+    .page-header span {
+        color: #666;
+    }
+
+    .page-header .action {
+        margin-left: 15px;
+        font-size: 13px;
+        padding: 0 10px;
+    }
+
+    .page-header .action:active {
+        padding: 0 9px 0 11px;
+    }
+
+    .sub-header {
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 30px;
+        height: 0.5em;
+        font-size: 18px;
+        line-height: 20px;
+    }
+
+    .sub-header span {
+        padding: 0 10px 0 0;
+        background-color: #fff;
+    }
+
+    .page-header {
+        font-size: 20px;
+        border-bottom: 0 solid #9CF;
+        padding: 0 0 7px 0;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    body.site-warning {
+        padding-top: 90px;
+    }
+
+    .container .main {
+        width: 100%;
+        float: left;
+        padding-bottom: 60px;
+    }
+
+    .container .sidebar {
+        width: 220px;
+        float: right;
+        min-height: 300px;
+    }
+
+    #page-main {
+        min-height: 400px;
+        _height: 400px;
+    }
+
+
+    #diarys, .diarys {
+        border-bottom: 1px dashed #d5d5d5;
+        margin-bottom: 20px;
+    }
+
+    .diarys {
+    }
+
+    .diary, .comment {
+        border-top: 1px dashed #d5d5d5;
+        padding: 20px 0 5px 0;
+    }
+
+    .diary .icon, .comment .icon {
+        display: block;
+        float: left;
+        width: 64px;
+        height: 64px;
+        padding: 0;
+        background-color: #efefef;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .diary .body, .comment .body {
+    }
+
+    .diary .body-no-icon {
+        padding-left: 0;
+    }
+
+    .diary .body .title, .comment .body .title {
+        font-size: 13px;
+        margin-bottom: 10px;
+        color: #789;
+    }
+
+    .diary .body .title .name, .comment .body .title .name {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .diary .body .title .book, .comment .body .title .action {
+        color: #789;
+        margin-left: 8px;
+    }
+
+    .diary .body .title .book:hover, .comment .body .title .action:hover {
+        color: #fff;
+    }
+
+    .diary .body .content, .comment .body .content {
+        color: #333;
+        line-height: 1.8em;
+        padding-top: 3px;
+        font-size: 13px;
+        overflow: hidden;
+        font-family: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
+    }
+
+    .diary .body .content .thumbnail, .form-edit .thumbnail {
+        display: block;
+        float: left;
+        margin: 0 14px 14px 0;
+        -webkit-box-shadow: 1px 1px 2px #999;
+        box-shadow: 1px 1px 2px #999;
+        max-width: 99%;
+    }
+
+    .diary .body .content .thumbnail:hover {
+        border-color: #39E;
+        background-color: #fff;
+        cursor: zoom-in;
+        cursor: -moz-zoom-in;
+        cursor: -webkit-zoom-in;
+    }
+
+    .diary .body pre.content .thumbnail {
+        float: none;
+    }
+
+    .diary .body pre.content .thumbnail:hover {
+        border-color: #ccc;
+    }
+
+    .diary .body .bottom {
+        margin: 20px 0 0 0;
+        text-align: right;
+        clear: left;
+    }
+
+    .diary .body .bottom a {
+        color: #789;
+    }
+
+    .diary .body .bottom a:hover {
+        color: #fff;
+    }
+
+    .diary .body .bottom a.delete:hover {
+        color: #fff;
+        background-color: #900;
+    }
+
+    .diary-sub {
+        margin-left: 84px;
+    }
+
+    .diary-sub .body {
+        padding-left: 0;
+    }
+
+    .comments {
+        margin-top: 40px;
+        padding-top: 60px;
+    }
+
+    .comments .comment-form {
+        margin-bottom: 80px;
+        width: 420px;
+    }
+
+    .comments .comment-form textarea {
+        width: 420px;
+    }
+
+    .comment {
+        clear: left;
+        padding: 20px 10px 20px 10px;
+        max-width: 550px;
+        margin: 0;
+    }
+
+    .comment .icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .comment .icon img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .comment .body {
+        padding-left: 64px;
+        max-width: 500px;
+        min-height: 45px;
+    }
+
+    .comment:hover {
+        background: #f6f6f6;
+    }
+
+    .comment .body .title .delete { /*float:right;*/
+    }
+
+    .comment .body .title .delete:hover {
+        color: #fff;
+        background-color: #900;
+    }
+
+    .comment:hover .title .delete {
+        display: inline;
+    }
+
+    .comment .title .reply {
+        float: right;
+    }
+
+    .comment-form table td {
+        border: 1px solid #ccc;
+        background-color: #fff;
+    }
+
+    .comment-form table a {
+        display: block;
+    }
+
+    .comment-form table img {
+        padding: 3px;
+        display: block;
+    }
+
+    .comment-form .action-box {
+        position: relative;
+    }
+
+    .notebooks {
+        margin-left: -14px
+    }
+
+    .notebookURL {
+        display: block;
+        float: left;
+        width: 160px;
+        margin: 0 0 25px 14px;
+        color: #999;
+        height: 220px;
+        border: 1px solid #e5e5e5;
+        border-right: none;
+        border-bottom: none;
+        padding: 0;
+        position: relative;
+        box-shadow: 1px 1px 1px #999;
+        background-color: #f8f8f8;
+    }
+
+    .notebookURL .cov {
+        position: relative;
+        display: block;
+        width: 160px;
+        height: 120px;
+    }
+
+    .notebookURL .cov .cover {
+        width: 160px;
+        height: 120px;
+        background-color: #fff;
+    }
+
+    .notebookURL .cov .icon {
+        display: block;
+        position: absolute;
+        height: 22px;
+        bottom: 4px;
+        right: 4px;
+        filter: alpha(opacity=65);
+        -moz-opacity: .65;
+        opacity: 0.65;
+    }
+
+    .notebookURL h3 {
+        font-size: 15px;
+        height: 66px;
+        display: table;
+        line-height: 18px
+    }
+
+    .notebookURL h3 a {
+        display: table-cell;
+        vertical-align: middle;
+        width: 160px;
+        text-align: center;
+        padding: 5px;
+        color: #333;
+    }
+
+    .notebookURL h3 a:hover {
+        color: #000;
+        background-color: transparent;
+    }
+
+    .notebookURL p {
+        padding: 5px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        font-size: 11px;
+        text-align: center;
+        width: 150px;
+    }
+
+    .notebookURL:hover {
+        box-shadow: 2px 2px 2px #999;
+        margin: -1px 1px 26px 13px;
+    }
+
+    .notebookURL:hover a {
+        color: #000;
+    }
+
+    .user_icon {
+        width: 64px;
+        height: 64px;
+        background-color: #efefef;
+    }
+
+    .container .user_list {
+        margin-left: -10px;
+    }
+
+    .user_list .user {
+        text-align: center;
+        width: 88px;
+        height: 120px;
+        float: left;
+        margin: 0 0 10px 10px;
+    }
+
+    .user_list img {
+        display: block;
+        margin: 0 auto 5px auto;
+        width: 64px;
+        height: 64px;
+        background-color: #f0f1f4;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .sidebar .user_list .user {
+        height: 70px;
+        width: 60px;
+        font-size: 12px;
+        overflow: hidden;
+        line-height: 18px;
+    }
+
+    .sidebar .user_list .user img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .relation_user_list .user {
+        width: 280px;
+        text-align: left;
+        border-top: 1px dashed #AABBDD;
+        padding: 10px;
+        height: auto;
+    }
+
+    .relation_user_list img {
+        margin: 0 10px 0 0;
+        display: inline;
+        float: left
+    }
+
+    .relation_user_list .name {
+        height: 14px;
+        float: left;
+        display: block
+    }
+
+    .relation_user_list .user .action {
+        padding-top: 30px;
+        text-align: center;
+    }
+
+    .relation_user_list .user .action {
+        visibility: hidden;
+        width: auto;
+    }
+
+    .user_list .user:hover .action {
+        visibility: visible;
+    }
+
+    .pagination {
+        text-align: center;
+        clear: left;
+        padding: 30px 0 0 0;
+    }
+
+    .pagination a {
+        padding: 5px 10px;
+        margin: 0 2px;
+    }
+
+    .pagination strong {
+        padding: 5px 10px;
+        margin: 0 3px;
+    }
+
+    /* calendar */
+    .calendar {
+        width: 230px;
+        text-align: left;
+    }
+
+    .calendar-box {
+        width: 200px;
+        padding-bottom: 20px;
+    }
+
+    .calendar table th {
+        text-align: center;
+        background-color: #F0F1F4;
+        height: 24px;
+        border-radius: 2px;
+    }
+
+    .calendar table td {
+        height: 24px;
+        width: 24px;
+        line-height: 20px;
+        background-color: #F0F1F4;
+        margin: 1px;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-size: 11px;
+        text-align: center;
+        border: 3px solid #fff;
+        color: #777;
+    }
+
+    .calendar table td a {
+        display: block;
+        width: 24px;
+        height: 24px;
+        text-decoration: none;
+        background-color: #F0F1F4;
+        background-position: center;
+        line-height: 24px;
+        background-repeat: no-repeat;
+        border-radius: 2px;
+    }
+
+    .calendar table td a:hover {
+        background-color: #39E;
+        color: #fff;
+    }
+
+    .calendar .today {
+        background-color: #06b;
+        color: #fff;
+    }
+
+    .calendar .big_day {
+        background-color: #ff0033;
+        color: #fff;
+    }
+
+    .previous_moon {
+        display: block;
+        float: left;
+    }
+
+    .next_moon {
+        display: block;
+        float: right;
+        margin-right: 16px;
+        _margin-right: 8px;
+    }
+
+    /* fancybox fix */
+    .fancybox-wrap a {
+        background-color: transparent;
+    }
+
+    div.fancybox-outer {
+        -webkit-border-radius: 0;
+        -moz-border-radius: 0;
+        border-radius: 0;
+    }
+
+    /* calendar input fix */
+    div.date_selector div.nav {
+        width: auto;
+    }
+
+    div.date_selector div.nav .year_nav {
+        width: 45%;
+        margin-right: 0;
+    }
+
+    div.date_selector div.nav .month_nav {
+        width: 45%;
+    }
+
+
+    .emojione {
+        /* Emoji Sizing */
+        font-size: inherit;
+        height: 1.3em;
+        width: 1.4em;
+
+        /* Inline Text Alignment */
+        display: inline-block;
+        top: -3px;
+        position: relative;
+        margin: 0 .15em;
+        line-height: normal;
+        vertical-align: middle;
+    }
+
+    img.emojione {
+        /* prevent img stretch */
+        width: auto;
+    }
+</style>
+</html>

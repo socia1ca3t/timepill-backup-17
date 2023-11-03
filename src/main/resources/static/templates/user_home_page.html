@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>日记备份</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="../css/bulma.min.css"/>
+    <link rel="stylesheet" href="../css/bulma-timeline.min.css"/>
+
+    <script type="text/javascript" src="../icons/js/all.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-3.1.1.min.js"></script>
+</head>
+<style>
+
+    html {
+        background-color: #f5f5f5;
+    }
+
+    .to-top-button {
+        width: 10px;
+        position: fixed;
+        bottom: 10px;
+    }
+
+    .to-top-icon {
+        font-size: 24px;
+        color: #fafafa;
+    }
+
+    .card-background {
+        width: 100%;
+    }
+
+    .card-background:not(:last-child) {
+        border-bottom: 1px dashed #ddd;
+    }
+
+    a {
+        color: #4a4a4a;
+    }
+
+    .card, .box {
+        border-radius: 1px;
+    }
+
+    .heading {
+        margin-bottom: unset !important;
+    }
+
+    .subtitle, .heading {
+        font-weight: bold;
+    }
+
+    .year-category-title {
+        border-bottom: 1px dashed #ddd;
+        /*border-top: 1px dashed #ddd;*/
+        font-weight: bold;
+    }
+
+    .hero {
+        background-color: white;
+    }
+
+    .breadcrumb > ul {
+        border-bottom-style: none;
+        background-color: white;
+        padding-top: 12px;
+        padding-bottom: 6px;
+    }
+
+    .timeline .timeline-item .timeline-content {
+        padding: 1em 0 0 1em;
+    }
+
+    .tag:not(body) {
+        border-radius: 2px;
+        height: 2.2em;
+        background-color: #7a7a7a;
+    }
+
+    .section {
+        padding: 1.5rem 1.5rem;
+    }
+
+    .tile.is-vertical > .tile.is-child:not(:last-child) {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .navbar-item, .navbar-link {
+        color: #7a7a7a;
+    }
+
+</style>
+<script type="text/javascript">
+
+    var count = 1;
+    $(document).ready(function () {
+
+        $(".navbar-burger").click(function () {
+
+            count++ % 2 ? $(".navbar-item-toggle").show() : $(".navbar-item-toggle").hide();
+            $(".navbar-burger").toggleClass("is-active");
+            $(".navbar-menu").toggleClass("is-active");
+        });
+
+
+    });
+
+</script>
+<body>
+<section class="hero is-medium">
+    <div class="hero-head">
+        <nav class="navbar has-shadow " role="navigation" aria-label="main navigation">
+            <div class="container is-max-desktop">
+                <div class="navbar-brand">
+                    <a class="navbar-item">
+                        <img src="../images/moya_cartoon_70.png" alt="Logo">
+                    </a>
+                    <span class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </div>
+                <div id="navMenu" class="navbar-menu">
+                    <div class="navbar-end">
+                        <a style="display: none!important;" class="navbar-item is-flex navbar-item-toggle"
+                           title="下载全部日记本"
+                           th:href="'/download/html/notebooks/' + ${homePageVO.getUserInfo().getId()}" target="_blank">
+                                <span class="icon">
+                                    <i class="fa-solid fa-download"></i>
+                                </span>
+                            <span>下载全部日记</span>
+                        </a>
+                        <a style="display: none!important;" class="navbar-item is-flex navbar-item-toggle"
+                           href="/notices">
+                            <span class="icon">
+                              <i class="fa-solid fa-book"></i>
+                            </span>
+                            <span>指南</span>
+                        </a>
+                        <a class="navbar-item is-flex" href="/logout" title="退出">
+                            <span class="icon">
+                                <i class="fa-solid fa-sign-out"></i>
+                            </span>
+                            <span>退出</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</section>
+
+
+<section class="section">
+    <div class="container is-max-desktop">
+
+
+        <div class="tile is-ancestor">
+            <div class="tile is-1" th:remove="${notebookMap.size()} == 1 ? all">
+                <div class="tile is-parent is-vertical" style="padding: .75rem 0;">
+                    <div>
+                        <div>
+                            <div class="timeline" style="position: fixed;z-index: 10000;">
+
+                                <div th:each="notebookOfYear,iterStat : ${notebookMap}">
+                                    <header class="timeline-header">
+                                        <a class="tag is-dark" th:href="'#' + ${notebookOfYear.key}"
+                                           th:text="${notebookOfYear.key}">
+                                            2022
+                                        </a>
+                                    </header>
+                                    <!--<div class="timeline-item timeline-line" th:remove="${iterStat.last} ? all"></div>-->
+                                    <div class="timeline-item timeline-line"></div>
+                                </div>
+                                <header class="timeline-header">
+                                    <a class="tag is-dark" href="javascript:scrollTo(0,0);">顶&nbsp;部</a>
+                                </header>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="tile is-vertical is-parent"
+                 th:attrappend="class=${notebookMap.size()} == 1 ? ' is-9' : ' is-8'">
+
+                <!-- 按年份倒序排列的日记本 -->
+                <div class="tile is-child box is-shadowless" th:each="notebookOfYear : ${notebookMap}">
+                    <div class="columns year-category-title" th:id="${notebookOfYear.getYear()}">
+                        <div class="column is-inline-flex">
+                            <span class="icon">
+                              <i class="fa-solid fa-paperclip"></i>
+                            </span>
+                            <a style="position: relative;">
+                                <span th:text="${notebookOfYear.getYear() + '年的日记本'}">2022年的日记本</span>
+                                <span class="badge" th:text="${notebookOfYear.getNoteBooks().size()}">8</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="columns is-multiline"
+                         style="margin-top: 25px; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
+
+                        <div class="column" style="" th:each="notebook:${notebookOfYear.getNoteBooks()}">
+
+                            <div class="card" style="width: 130px; margin: 0 auto; border-radius: unset;">
+                                <div class="card-image">
+                                    <a class="image is-4by3" th:href="'/notebook/' + ${notebook.getId()}"
+                                       target="_blank" title="查看日记本">
+                                        <img style="border-radius: unset;" th:src="${notebook.getCoverImgSrc()}">
+                                    </a>
+                                </div>
+                                <div class="card-content" style="padding: 0rem 0;border-radius: unset">
+                                    <div class="filed has-text-centered" style="height: 47px; font-size: 14px">
+                                        <a href="/notebook/" target="_blank" th:attrappend="href=${notebook.getId()}"
+                                           th:text="${notebook.getName()}">日记本名称</a>
+                                    </div>
+
+                                    <div class="filed has-text-centered">
+                                        <p style="color: #b5b5b5; font-size: 12px"
+                                           th:text="${notebook.getCreateDate()}">2022-10-19</p>
+                                        <p style="color: #b5b5b5; font-size: 12px"
+                                           th:text="${notebook.getExpireDate()}">2022-10-19</p>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <br>
+                            <div class="filed has-text-centered" style="font-size: 14px;">
+                                <span th:text="${notebook.isToPublic() ? '公开' : '私密'}">公开</span> |
+                                <span th:text="${notebook.isHasExpired() ? '过期' : '未过期'}">未过期</span> |
+                                <a th:href="'/download/html/notebook/' + ${notebook.getId()}" target="_blank">下载</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 个人资料 -->
+            <div class="tile is-vertical is-3">
+                <div class="tile is-parent is-vertical">
+                    <div class="card is-shadowless card-background">
+                        <div class="card-content" style="padding: 19px;">
+                            <div class="media">
+                                <div class="media-left">
+                                    <figure class="image is-48x48">
+                                        <img style="border-radius: unset;"
+                                             th:src="${homePageVO.getUserInfo().getIconImgSrc()}"
+                                             alt="Placeholder image">
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <p th:text="${homePageVO.getUserInfo().getName()}">幸香草凝子</p>
+                                    <p class="heading" style="font-weight: unset;"
+                                       th:text="${#strings.substring(homePageVO.getUserInfo().getCreated(),0,10)}">
+                                        2010-10-09</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <p class="content" style="white-space: pre-line"
+                                   th:text="${homePageVO.getUserInfo().getIntro()}"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile">
+                        <div class="card card-background is-shadowless" style="border-bottom: 1px dashed #ddd;">
+                            <div class="card-content" style="padding:8px 19px;">
+                                <a class="is-inline-flex" style="color:#4a4a4a; display:inline-flex;" href="/notices">
+                                    <span class="icon">
+                                      <i class="fa-solid fa-book"></i>
+                                    </span>
+                                    <span>指南</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile">
+                        <div class="card card-background is-shadowless">
+                            <div class="card-content" style="padding:8px 19px;">
+                                <a class="is-inline-flex" style="color:#4a4a4a;" title="下载全部日记本"
+                                   th:href="'/download/html/notebooks/' + ${homePageVO.getUserInfo().getId()}"
+                                   target="_blank">
+                                    <span class="icon">
+                                        <i class="fa-solid fa-download"></i>
+                                    </span>
+                                    <span>下载全部日记</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 占位 -->
+                <div style="height: 100%"></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+</body>
+</html>

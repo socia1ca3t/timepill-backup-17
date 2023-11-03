@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>日记</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../css/bulma.min.css"/>
+
+    <script type="text/javascript" src="../icons/js/all.min.js"></script>
+    <script type="text/javascript" src="../js/html2canvas.js"></script>
+    <script type="text/javascript" src="../js/jquery-3.1.1.min.js"></script>
+</head>
+<style type="text/css">
+
+    .notebook-title > .box {
+        border-top: 1px solid #e8e8e8;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .box {
+        border-radius: unset;
+        box-shadow: unset;
+    }
+
+    .diaries > .box:last-child {
+        /*border-bottom: 1px solid #e8e8e8;*/
+    }
+
+    .diaries > .box:not(:last-child) {
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .heading {
+        color: #b5b5b5;
+        font-size: .85rem;
+    }
+
+    .column {
+        padding: 0 0.75rem;
+        border: 1px solid #e8e8e8;
+        border-radius: 5px;
+        box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%);
+    }
+
+    .box:not(:last-child).content:not(:last-child) {
+        margin-bottom: unset;
+    }
+
+    .footer {
+        background-color: #fafafa;
+        padding: 1rem;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
+</style>
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+
+        $(".navbar-burger").click(function () {
+
+            $(".navbar-burger").toggleClass("is-active");
+            $(".navbar-menu").toggleClass("is-active");
+
+        });
+    });
+
+
+    function html2pic() {
+
+        html2canvas(document.getElementById("notebook")).then(function (canvas) {
+
+            let dataUrl = canvas.toDataURL("image/jpeg", 1);  //图片二进制格式
+            saveFile(dataUrl, $("#notebookName").html() + ".jpg");
+        });
+    }
+
+    var saveFile = function (data, filename) {
+
+        let save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');  //img表示生成img元素或a元素或则可以放图片地址的元素
+
+        save_link.href = data;            //img  元素中图片引入用src，a元素中图片的引入用href等等
+        save_link.download = filename;    // 下载的名称
+        var event = document.createEvent('MouseEvents');// 创建event事件
+        //initMouseEvent 方法用于初始化通过 DocumentEvent 接口创建的 MouseEvent 的值
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        save_link.dispatchEvent(event);
+
+    }
+
+</script>
+
+<body>
+<section class="hero is-medium">
+    <div class="hero-head">
+        <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+            <div class="container is-max-desktop">
+                <div class="navbar-brand">
+                    <a class="navbar-item">
+                        <img src="../images/moya_cartoon_70.png" alt="Logo">
+                    </a>
+                    <span class="navbar-burger" data-target="navMenu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </div>
+                <div id="navMenu" class="navbar-menu">
+                    <div class="navbar-end">
+                        <a class="navbar-item is-flex" href="/logout" title="退出">
+                            <span class="icon">
+                              <i class="fa-solid fa-sign-out"></i>
+                            </span>
+                            <span>退出</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</section>
+
+
+<section id="notebook" class="section" style="margin-bottom: 80px; padding: 1.6rem 1.5rem;">
+
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-12-tablet is-8-desktop is-6-widescreen diaries">
+                <div class="box content">
+                    <p id="notebookName" class="has-text-weight-bold is-size-4" style="margin-bottom: 10px;"
+                       th:text="' ' + ${diariesIndexVO.getNoteBook().getName()} + ' '">
+                        笔记本名称
+                    </p>
+                    <p style="color: #b5b5b5;"
+                       th:text="${diariesIndexVO.getNoteBook().getCreateDate() + ' 至 ' + diariesIndexVO.getNoteBook().getExpireDate()}">
+                        2022-01-09 至 2022-01-05</p>
+                    <div class="field is-grouped is-grouped-multiline">
+
+                        <div class="control">
+                            <div class="tags has-addons">
+                                <span class="tag is-dark">图片</span>
+                                <span class="tag is-success"
+                                      th:text="${diariesIndexVO.getStatisticData().getImagesDiariesNum()}">10</span>
+                            </div>
+                        </div>
+
+                        <div class="control">
+                            <div class="tags has-addons">
+                                <span class="tag is-dark">文字</span>
+                                <span class="tag is-success"
+                                      th:text="${diariesIndexVO.getStatisticData().getTextDiariesNum()}">10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box content is-normal is-size-7-mobile" th:each="diary:${diariesIndexVO.getDiaries()}">
+                    <p th:text="${diary.getPostTime()}" style="color: #b5b5b5;">2022-08-18 20：12：35</p>
+
+                    <p style="white-space: pre-line" th:text="${diary.getContentText()}">笔记内容</p>
+                    <p class="is-marginless" th:remove="${diary.getImgSrc() == null || diary.getImgSrc() == ''} ? all">
+                        <img alt="image" class="diary-img" th:src="${diary.getImgSrc()} "
+                             onerror="javascript:setTimeout(() => { this.src=this.src; }, 1000);">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="footer">
+    <nav class="content has-text-centered">
+        <a class="button" th:href="'/download/html/notebook/' + ${diariesIndexVO.getNoteBook().getId()}"
+           target="_blank">
+            下载日记
+        </a>
+        <button class="button" onclick="html2pic();">
+            生成长图
+        </button>
+    </nav>
+</footer>
+</body>
+</html>

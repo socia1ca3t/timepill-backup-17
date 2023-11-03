@@ -1,0 +1,79 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>胶囊备份</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bulma.min.css"/>
+
+    <script type="text/javascript" src="/icons/js/all.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+</head>
+<script type="application/javascript">
+
+    $(document).ready(function () {
+
+        $(".navbar-burger").click(function () {
+
+            $(".navbar-burger").toggleClass("is-active");
+            $(".navbar-menu").toggleClass("is-active");
+        });
+    });
+
+</script>
+<body>
+<section class="hero is-medium">
+    <div class="hero-head">
+        <nav class="navbar has-shadow " role="navigation" aria-label="main navigation">
+            <div class="container is-max-desktop">
+                <div class="navbar-brand">
+                    <a class="navbar-item">
+                        <img src="/images/moya_cartoon_70.png" alt="Logo">
+                    </a>
+                    <a class="navbar-item navbar-tabs" href="/">
+                        主页
+                    </a>
+                    <span class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </div>
+                <div id="navMenu" class="navbar-menu">
+                    <div class="navbar-end">
+                        <a class="navbar-item is-inverted" href="/logout" title="退出">
+                            <span class="icon">
+                                <i class="fa-solid fa-sign-out"></i>
+                            </span>
+                            <span>退出</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</section>
+<section class="section">
+    <div class="container is-max-desktop" style="max-width: 680px;">
+        <div class="content">
+
+            <figure class="is-marginless">
+                <img src="/images/3d-flame-man.png">
+            </figure>
+            <br>
+            <br>
+            <br>
+            <article>
+                <div style="text-align: center; font-size: 18px;">
+                    <span>正在准备文件，请耐心等待...</span>
+                </div>
+            </article>
+            <br>
+            <br>
+            <br>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>

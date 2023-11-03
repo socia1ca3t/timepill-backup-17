@@ -1,0 +1,37 @@
+# 测试
+debug: true
+
+server:
+  servlet:
+    session:
+      persistent: false
+      cookie:
+        http-only: true
+      timeout: 60m
+  error:
+    path: /error
+  port: 10086
+  compression:
+    enabled: true
+
+
+logging:
+  level:
+    org:
+      springframework:
+      #security: TRACE
+      apache:
+      #hc.client5: DEBUG
+
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+
+
+# 根据使用环境配置
+# 数据源
+spring.datasource.url: jdbc:h2:C:/timepill-backup/db/data
+# 所有下载文件的存放路径
+timepill.fileBasePath: C:/timepill-backup/
