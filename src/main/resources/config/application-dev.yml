@@ -18,10 +18,11 @@ server:
 logging:
   level:
     org:
+      #thymeleaf: TRACE
       springframework:
       #security: TRACE
-      apache:
-      #hc.client5: DEBUG
+      #hc.client5: TRACE
+      scheduling.concurrent.ThreadPoolTaskExecutor: DEBUG
 
 
 spring:

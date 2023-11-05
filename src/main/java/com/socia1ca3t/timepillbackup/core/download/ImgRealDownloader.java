@@ -7,12 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -59,8 +57,7 @@ public class ImgRealDownloader {
                 throw new HttpServerErrorException(entity.getStatusCode());
             }
 
-            BackupUtil.createDirectories(targetFileURL);
-            StreamUtils.copy(entity.getBody(), new FileOutputStream(targetFileURL));
+            BackupUtil.copyFile(entity.getBody(), new File(targetFileURL));
             logger.info("图片下载成功：" + targetFileURL);
 
             return fileName;

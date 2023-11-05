@@ -6,13 +6,12 @@ import com.socia1ca3t.timepillbackup.core.download.ImgSyncDownloader;
 import com.socia1ca3t.timepillbackup.pojo.dto.*;
 import com.socia1ca3t.timepillbackup.service.CurrentUserTimepillApiService;
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
-import com.socia1ca3t.timepillbackup.util.SpringContextUtil;
 import com.socia1ca3t.timepillbackup.util.TimepillUtil;
 import org.h2.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.util.FileCopyUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +31,13 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
     private final NoteBook noteBook;
 
 
-    public SingleNotebookHTMLBackuper(NoteBook noteBook, UserInfo userInfo) {
+    public SingleNotebookHTMLBackuper(NoteBook noteBook, UserInfo userInfo, RestTemplate userBasicAuthRestTemplate) {
 
 
-        super(new BackupInfo(userInfo.getName(), Backuper.Type.SINGLE, noteBook.getId()));
+        super(new BackupInfo(userInfo.getName(),
+                Backuper.Type.SINGLE,
+                noteBook.getId()),
+                new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
 
         NoteBook copiedNoteBook = new NoteBook();
         BeanUtils.copyProperties(noteBook, copiedNoteBook);
@@ -52,8 +54,7 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
         logger.info("{}开始准备单个日记本[{}]", userInfo.getEmail(), noteBook.getName());
 
-        CurrentUserTimepillApiService openApiService = SpringContextUtil.getBean(CurrentUserTimepillApiService.class);
-        List<Diary> allDiaryList = openApiService.getDiaryList(noteBook.getId());
+        final List<Diary> allDiaryList = getAllDiaries(noteBook.getId());
 
 
         // 获取所有带有图片的日记
@@ -65,7 +66,7 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
         downloaderBuilder.diaryImage(allImageDiaryList, userInfo.getId()).build(new ImgSyncDownloader()).download();
 
         // 生成通用的文件，如：CSS,系统图片
-        String notebookBackgroudImg = TimepillUtil.getConfig().getNotebookBackgroudImg();
+        String notebookBackgroudImg = TimepillUtil.getConfig().notebookBackgroudImg();
         if (!StringUtils.isNullOrEmpty(notebookBackgroudImg)) {
             BackupUtil.copyFile("images/" + notebookBackgroudImg, getGenerateFilesPath());
         }
@@ -76,7 +77,7 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
         String targetFileURL = getGenerateFilesPath() + noteBook.getId() + "_" + noteBook.getName() + ".html";
 
-        FileCopyUtils.copy(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURL));
+        BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURL));
 
         return new File(getGenerateFilesPath());
     }

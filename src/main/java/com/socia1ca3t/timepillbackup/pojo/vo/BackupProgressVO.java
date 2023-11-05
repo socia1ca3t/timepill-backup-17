@@ -2,6 +2,7 @@ package com.socia1ca3t.timepillbackup.pojo.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.Date;
 /**
  * final 可以保证成员变量的可见性
  */
+@Data
 @JsonSerialize
 public class BackupProgressVO implements Serializable {
 
@@ -51,28 +53,6 @@ public class BackupProgressVO implements Serializable {
     public BackupProgressVO(ProgressMonitor.State progressState, long restTaskNum) {
 
         this(progressState, restTaskNum, null);
-    }
-
-    public Date getProduceDate() {
-        return produceDate;
-    }
-
-    public ProgressMonitor.State getState() {
-        return state;
-    }
-
-    public long getRestTaskNum() {
-        return restTaskNum;
-    }
-
-
-    public boolean isDownloading() {
-        return isDownloading;
-    }
-
-
-    public String getMsg() {
-        return msg;
     }
 
 }

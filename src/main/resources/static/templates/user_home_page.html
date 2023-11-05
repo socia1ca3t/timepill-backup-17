@@ -166,10 +166,10 @@
                         <div>
                             <div class="timeline" style="position: fixed;z-index: 10000;">
 
-                                <div th:each="notebookOfYear,iterStat : ${notebookMap}">
+                                <div th:each="notebookOfYear : ${notebookMap}">
                                     <header class="timeline-header">
-                                        <a class="tag is-dark" th:href="'#' + ${notebookOfYear.key}"
-                                           th:text="${notebookOfYear.key}">
+                                        <a class="tag is-dark" th:href="'#' + ${notebookOfYear.getYear()}"
+                                           th:text="${notebookOfYear.getYear()}">
                                             2022
                                         </a>
                                     </header>
@@ -188,6 +188,42 @@
 
             <div class="tile is-vertical is-parent"
                  th:attrappend="class=${notebookMap.size()} == 1 ? ' is-9' : ' is-8'">
+
+                <!-- 统计数据 -->
+                <div class="tile is-child box is-shadowless">
+                    <!-- th:style="'background-image: url(images/' + ${backgroudImg} + ');'">-->
+                    <!--<div class="tile is-child box is-shadowless" style="background-color: white;background-image: url(../images/15.png);">-->
+                    <nav class="level is-mobile">
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">年龄</p>
+                                <p class="subtitle" th:text="${homePageVO.getUserData().getAge()} + '/岁'">3/岁</p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">日记本</p>
+                                <p class="subtitle" th:text="${homePageVO.getUserData().getNotebookNum()} + '/本'">
+                                    12/本</p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">过期</p>
+                                <p class="subtitle" th:text="${homePageVO.getUserData().getExpiredNum()} + '/本'">
+                                    3/本</p>
+                            </div>
+                        </div>
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">私密</p>
+                                <p class="subtitle" th:text="${homePageVO.getUserData().getPrivateNum()} + '/本'">
+                                    12/本</p>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+
 
                 <!-- 按年份倒序排列的日记本 -->
                 <div class="tile is-child box is-shadowless" th:each="notebookOfYear : ${notebookMap}">

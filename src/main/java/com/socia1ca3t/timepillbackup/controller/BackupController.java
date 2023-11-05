@@ -1,6 +1,7 @@
 package com.socia1ca3t.timepillbackup.controller;
 
 import com.socia1ca3t.timepillbackup.config.CurrentUser;
+import com.socia1ca3t.timepillbackup.config.CurrentUserBasicAuthRestTemplate;
 import com.socia1ca3t.timepillbackup.core.Backuper;
 import com.socia1ca3t.timepillbackup.core.ImgPathConvertor;
 import com.socia1ca3t.timepillbackup.core.backup.BackupObservable;
@@ -10,7 +11,7 @@ import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
 import com.socia1ca3t.timepillbackup.pojo.vo.BackupProgressVO;
 import com.socia1ca3t.timepillbackup.service.BackupService;
 import com.socia1ca3t.timepillbackup.service.LogService;
-import com.socia1ca3t.timepillbackup.util.CacheUtil;
+import com.socia1ca3t.timepillbackup.util.BackupCacheUtil;
 import com.socia1ca3t.timepillbackup.util.DateUtil;
 import com.socia1ca3t.timepillbackup.util.SpringContextUtil;
 import jakarta.validation.constraints.NotBlank;
@@ -25,6 +26,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -49,16 +51,18 @@ public class BackupController {
 
     @RequestMapping(value = "/html/notebook/{notebookId}", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<StreamingResponseBody> downloadSingleNotebookForHTML(@PathVariable @NotBlank String notebookId,
-                                                                               @CurrentUser UserInfo user) {
+                                                                               @CurrentUser UserInfo user,
+                                                                               @CurrentUserBasicAuthRestTemplate RestTemplate userBasicAuthRestTemplate) {
 
-        return backupService.backupSingleNotebookToHTML(user, notebookId);
+        return backupService.backupSingleNotebookToHTML(user, notebookId, userBasicAuthRestTemplate);
     }
 
 
     @RequestMapping(value = "/html/notebooks/{userId}", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<StreamingResponseBody> downloadAllNotebookForHTML(@CurrentUser UserInfo user) {
+    public ResponseEntity<StreamingResponseBody> downloadAllNotebookForHTML(@CurrentUser UserInfo user,
+                                                                            @CurrentUserBasicAuthRestTemplate RestTemplate userBasicAuthRestTemplate) {
 
-        return backupService.backupAllNotebookToHTML(user);
+        return backupService.backupAllNotebookToHTML(user, userBasicAuthRestTemplate);
     }
 
 
@@ -74,7 +78,7 @@ public class BackupController {
         BackupObserver observer = new BackupObserver();
         observer.setConsumer(getObserverConsumer(observer, prepareCode, sseEmitter));
 
-        Backuper backuper = CacheUtil.get("HTMLBackup", prepareCode);
+        Backuper backuper = BackupCacheUtil.get("HTMLBackup", prepareCode);
         if (backuper != null) {
 
             backuper.getProgressMonitor().addObserver(observer);

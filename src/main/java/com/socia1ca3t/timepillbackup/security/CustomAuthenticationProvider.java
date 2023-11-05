@@ -1,10 +1,14 @@
 package com.socia1ca3t.timepillbackup.security;
 
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
-import com.socia1ca3t.timepillbackup.properties.TimepillConfig;
+import com.socia1ca3t.timepillbackup.util.HttpClientUtil;
 import com.socia1ca3t.timepillbackup.util.JacksonUtil;
-import com.socia1ca3t.timepillbackup.util.RestTemplateUtil;
-import com.socia1ca3t.timepillbackup.util.SpringContextUtil;
+import com.socia1ca3t.timepillbackup.util.TimepillUtil;
+import lombok.SneakyThrows;
+import org.apache.hc.client5.http.HttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.util.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -19,12 +23,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+
 
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationProvider.class);
 
-    private static final String USER_API = SpringContextUtil.getBean(TimepillConfig.class).getApiUserURL();
+    private static final String USER_API = TimepillUtil.getConfig().apiUserURL();
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -35,7 +41,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         final RestTemplate basicAuthTemplate = getUserBindBasicAuthRestTemplate(username, password);
 
         UserInfo user;
-
         try {
             ResponseEntity<String> entity = basicAuthTemplate.getForEntity(USER_API, String.class);
             user = JacksonUtil.jsonToBean(entity.getBody(), UserInfo.class);
@@ -64,20 +69,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     }
 
 
+    @SneakyThrows
     private RestTemplate getUserBindBasicAuthRestTemplate(String email, String password) {
 
+        HttpRequestRetryStrategy retryStrategy = new DefaultHttpRequestRetryStrategy(3, TimeValue.ofSeconds(3));
+        HttpRequestInterceptor basicAuthAddInterceptor = HttpClientUtil.getBasicAuthForTargetHOSTInterceptor(new URI(USER_API), email, password);
 
-        HttpComponentsClientHttpRequestFactory fa;
-        try {
-            fa = RestTemplateUtil.getHTTPClientFactory();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        HttpComponentsClientHttpRequestFactory httpRequestFactory  = HttpClientUtil.getHTTPSClientFactory(retryStrategy, basicAuthAddInterceptor);
 
         return new RestTemplateBuilder()
-                .requestFactory(() -> fa)
-                .basicAuthentication(email, password)
+                .requestFactory(() -> httpRequestFactory)
                 .build();
     }
 

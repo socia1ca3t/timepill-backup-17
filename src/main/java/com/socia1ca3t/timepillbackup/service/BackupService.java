@@ -11,6 +11,7 @@ import com.socia1ca3t.timepillbackup.pojo.entity.PrepareFilesLog;
 import com.socia1ca3t.timepillbackup.pojo.vo.BackupProgressVO;
 import com.socia1ca3t.timepillbackup.repository.PrepareFilesLogRepository;
 import com.socia1ca3t.timepillbackup.util.*;
+import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.File;
@@ -35,33 +37,30 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
 public class BackupService {
 
     private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
 
-
-    @Autowired
-    private LogService logService;
-
-    @Autowired
-    private PrepareFilesLogRepository prepareFilesRepo;
+    private final LogService logService;
+    private final PrepareFilesLogRepository prepareFilesRepo;
 
 
-    public ResponseEntity<StreamingResponseBody> backupSingleNotebookToHTML(UserInfo user, String notebookId) {
+    public ResponseEntity<StreamingResponseBody> backupSingleNotebookToHTML(UserInfo user, String notebookId, RestTemplate userBasicAuthRestTemplate) {
 
 
-        List<NoteBook> list = SpringContextUtil.getBean(CurrentUserTimepillApiService.class).getNotebookList(user.getEmail());
+        List<NoteBook> list = new CurrentUserTimepillApiService(userBasicAuthRestTemplate).getCachableNotebookList();
 
         NoteBook notebook = TimepillUtil.getNotebookById(list, Integer.parseInt(notebookId));
-        Backuper backuper = new SingleNotebookHTMLBackuper(notebook, user);
+        Backuper backuper = new SingleNotebookHTMLBackuper(notebook, user, userBasicAuthRestTemplate);
 
         return backupToHTML(notebookId, backuper, Backuper.Type.SINGLE, user.getEmail());
     }
 
-    public ResponseEntity<StreamingResponseBody> backupAllNotebookToHTML(UserInfo user) {
+    public ResponseEntity<StreamingResponseBody> backupAllNotebookToHTML(UserInfo user, RestTemplate userBasicAuthRestTemplate) {
 
-        Backuper backuper = new AllNotebookHTMLBackuper(user);
+        Backuper backuper = new AllNotebookHTMLBackuper(user, userBasicAuthRestTemplate);
 
         return backupToHTML(String.valueOf(user.getId()), backuper, Backuper.Type.ALL, user.getEmail());
     }
@@ -96,6 +95,7 @@ public class BackupService {
 
             final CompletableFuture<File> prepareFilefuture = CompletableFuture.supplyAsync(backuper::execute);
 
+
             if (prepareFilefuture.isDone()) {
 
                 if (prepareFilefuture.isCompletedExceptionally()) {
@@ -118,8 +118,8 @@ public class BackupService {
             } else {
 
                 // 先清除历史任务的缓存，再创建新的，供SseEmitter getDownloadProgress使用
-                CacheUtil.evictIfPresent("HTMLBackup", prepareCode);
-                CacheUtil.put("HTMLBackup", prepareCode, backuper);
+                BackupCacheUtil.evictIfPresent("HTMLBackup", prepareCode);
+                BackupCacheUtil.put("HTMLBackup", prepareCode, backuper);
 
 
                 backuper.getProgressMonitor().addObserver(getExceptionObserver(backuper, prepareFilesLog));

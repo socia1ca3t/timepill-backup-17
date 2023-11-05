@@ -1,5 +1,6 @@
 package com.socia1ca3t.timepillbackup.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
@@ -8,17 +9,20 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class TemplateUtil {
 
     private static TemplateEngine templateEngine;
 
     @Autowired
-    public void setTemplateEngine(SpringTemplateEngine templateEngine) {
+    public TemplateUtil(SpringTemplateEngine templateEngine) {
         TemplateUtil.templateEngine = templateEngine;
     }
 
     public static String render2html(final Map map, String templateName) {
+
+        log.info("开始渲染" + templateName);
 
         Context context = new Context();
         context.setVariables(map);

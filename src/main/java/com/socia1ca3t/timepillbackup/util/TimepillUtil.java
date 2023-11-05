@@ -23,14 +23,17 @@ public class TimepillUtil {
     private static TimepillConfig config;
 
     @Autowired
-    public void setConfig(TimepillConfig config) {
-
-        this.config = config;
+    TimepillUtil(TimepillConfig config) {
+        TimepillUtil.config = config;
     }
 
     public static TimepillConfig getConfig() {
 
-        return config;
+        if (TimepillUtil.config == null) {
+            throw new RuntimeException("TimepillConfig未初始化");
+        }
+
+        return TimepillUtil.config;
     }
 
 

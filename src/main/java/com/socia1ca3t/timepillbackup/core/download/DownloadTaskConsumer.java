@@ -3,6 +3,7 @@ package com.socia1ca3t.timepillbackup.core.download;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -18,7 +19,7 @@ public class DownloadTaskConsumer {
     private static final BlockingQueue<DownloadTaskWrapper> queue = new DelayQueue<>();
 
     // 下载图片的线程池
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(3);
+    private static final ThreadPoolTaskExecutor threadPool = taskExecutor();
 
     // 单例模式
     private static volatile DownloadTaskConsumer instance;
@@ -33,7 +34,18 @@ public class DownloadTaskConsumer {
                 try {
                     DownloadTaskWrapper task = queue.take();
                     if (task != null) {
-                        threadPool.submit(() -> runTaskFunc.accept(task));
+
+                        logger.info("{},将任务提交到线程池...", task.hashCode());
+                        Future<?> future = threadPool.submit(() -> runTaskFunc.accept(task));
+
+                        try {
+                            future.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            logger.error("线程池任务执行异常", e);
+                            task.setDelay(1, TimeUnit.MINUTES);
+                            addTask(task);
+                        }
+
                     }
 
                 } catch (Exception e) {
@@ -48,8 +60,7 @@ public class DownloadTaskConsumer {
 
         try {
             task.run();
-            logger.info("{}下载任务执行成功", task.hashCode());
-
+            logger.info("{},任务执行完毕...", task.hashCode());
         } catch (Exception e) {
 
             logger.error("{}队列任务执行异常，设置延迟时间，再加入待执行任务队列", task.hashCode(), e);
@@ -92,4 +103,14 @@ public class DownloadTaskConsumer {
     }
 
 
+    public static ThreadPoolTaskExecutor taskExecutor() {
+
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(3); // 设置核心线程数
+        executor.setMaxPoolSize(6); // 设置最大线程数
+        executor.setQueueCapacity(1000); // 设置队列容量
+        executor.setThreadNamePrefix("Timepill-API-Thread-"); // 设置线程名称前缀
+        executor.initialize(); // 初始化线程池
+        return executor;
+    }
 }

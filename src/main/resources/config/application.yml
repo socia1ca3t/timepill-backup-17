@@ -14,8 +14,6 @@ spring:
   profiles:
     active: dev
 
-  security.strategy: MODE_GLOBAL
-
 
   thymeleaf:
     prefix: classpath:/static/templates/
@@ -41,8 +39,7 @@ spring:
 
 
 timepill:
-  roleAdmins:
-  notebookBackgroudImg:
+  httpCacheMinutes: 10
   indexURL: https://timepill.net
   userHomeURL: https://timepill.net/home/
   notebookURL: https://timepill.net/notebook/

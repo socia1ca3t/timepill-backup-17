@@ -5,16 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
-public class CacheUtil {
+public class BackupCacheUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(BackupCacheUtil.class);
 
-    private static final CacheManager cacheManager = SpringContextUtil.getBean(CacheManager.class);
+    private static final CacheManager cacheManager = SpringContextUtil.getBean("backupCacheManager");
 
     public static void put(String cacheName, Object key, Object value) {
 
         logger.info("{}增加键值对{}:{}", cacheName, key, value);
-
         cacheManager.getCache(cacheName).put(key, value);
     }
 

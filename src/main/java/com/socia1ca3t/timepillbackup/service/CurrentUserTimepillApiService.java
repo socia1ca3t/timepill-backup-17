@@ -4,20 +4,14 @@ package com.socia1ca3t.timepillbackup.service;
 import com.socia1ca3t.timepillbackup.pojo.dto.DiariesDTO;
 import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
 import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.properties.TimepillConfig;
 import com.socia1ca3t.timepillbackup.util.JacksonUtil;
-import com.socia1ca3t.timepillbackup.util.SecurityContextUtil;
+import com.socia1ca3t.timepillbackup.util.SpringContextUtil;
+import com.socia1ca3t.timepillbackup.util.TimepillUtil;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.thymeleaf.util.StringUtils;
 
@@ -28,54 +22,63 @@ import java.util.List;
 /**
  * 请求胶囊开放接口
  */
-@Service
-@Retryable(noRetryFor = HttpClientErrorException.class,
-        retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
-        maxAttempts = 5,
-        backoff = @Backoff(delay = 1000, multiplier = 2))
+
 public class CurrentUserTimepillApiService {
 
     private static final Log logger = LogFactory.getLog(CurrentUserTimepillApiService.class);
 
-    @Autowired
-    private TimepillConfig url;
+    private final CacheManager cacheManager = SpringContextUtil.getBean("httpApiCacheManager");
+    private final String NOTEBOOK_URL;
+    private final String DIARIES_URL;
+    private final RestTemplate userBasicAuthRestTemplate;
 
+    public CurrentUserTimepillApiService(@NotNull RestTemplate userBasicAuthRestTemplate) {
+
+        this.userBasicAuthRestTemplate = userBasicAuthRestTemplate;
+        NOTEBOOK_URL = TimepillUtil.getConfig().apiNotebookListURL();
+        DIARIES_URL = TimepillUtil.getConfig().apiDiaryURL();
+    }
 
     /**
      * 查询所有日记本
-     *
-     * @param email
-     * @return
      */
-    @Cacheable(value = "notebook", key = "#email")
-    public List<NoteBook> getNotebookList(String email) {
+    public List<NoteBook> getCachableNotebookList() {
 
-        RestTemplate rest = SecurityContextUtil.getCurrentUserBasicAuthRestTemplate();
-        ResponseEntity<String> entity = rest.getForEntity(url.getApiNotebookListURL(), String.class);
+        int key = userBasicAuthRestTemplate.hashCode();
+
+        return cacheManager.getCache("getNotebookList")
+                .get(key, this::getNotebookList);
+
+    }
+
+    public List<NoteBook> getNotebookList () {
+
+        ResponseEntity<String> entity = userBasicAuthRestTemplate.getForEntity(NOTEBOOK_URL, String.class);
 
         if (logger.isDebugEnabled()) {
             logger.debug("getNotebookList 响应日志：" + entity.getBody());
         }
 
-        List<NoteBook> list;
-        if (StringUtils.isEmpty(entity.getBody())) {
-            list = new ArrayList<>();
-            return list;
-        }
+        return StringUtils.isEmpty(entity.getBody())
+                ? new ArrayList<>()
+                : JacksonUtil.jsonToArrayList(entity.getBody(), NoteBook.class);
+    }
 
-        list = JacksonUtil.jsonToArrayList(entity.getBody(), NoteBook.class);
 
-        return list;
+    public List<Diary> getCachableDiaryList(int notebookId) {
+
+        int key = userBasicAuthRestTemplate.hashCode() + notebookId;
+
+        return cacheManager.getCache("getDiaryList")
+                .get(key, () -> getDiaryList(notebookId));
     }
 
     /**
      * 查询用户指定单本日记本的所有日记
      */
-    @Cacheable(value = "diary", key = "#notebookId")
     public List<Diary> getDiaryList(int notebookId) {
 
-        final RestTemplate rest = SecurityContextUtil.getCurrentUserBasicAuthRestTemplate();
-        ResponseEntity<String> entity = rest.getForEntity(url.getApiDiaryURL(), String.class, notebookId, 1);
+        ResponseEntity<String> entity = userBasicAuthRestTemplate.getForEntity(DIARIES_URL, String.class, notebookId, 1);
 
         if (logger.isDebugEnabled()) {
             logger.debug("getDiaryList 响应日志：" + entity.getBody());
@@ -97,12 +100,9 @@ public class CurrentUserTimepillApiService {
         if (pageTotalNum > 1) {
             for (int i = 2; i <= pageTotalNum; i++) {
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
+                try {Thread.sleep(1000);} catch (InterruptedException ignored) {}
 
-                entity = rest.getForEntity(url.getApiDiaryURL(), String.class, notebookId, i);
+                entity = userBasicAuthRestTemplate.getForEntity(DIARIES_URL, String.class, notebookId, i);
 
                 if (!StringUtils.isEmpty(entity.getBody())) {
                     diariesDTO = JacksonUtil.jsonToBean(entity.getBody(), DiariesDTO.class);

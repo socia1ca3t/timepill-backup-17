@@ -15,7 +15,7 @@ import org.h2.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.util.FileCopyUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +36,11 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     public static final String USER_HOME_TEMPLATE_PATH = "download/user_home_page";
 
 
-    public AllNotebookHTMLBackuper(UserInfo userInfo) {
+    public AllNotebookHTMLBackuper(UserInfo userInfo, RestTemplate userBasicAuthRestTemplate) {
 
-        super(new BackupInfo(userInfo.getName(), Backuper.Type.ALL, userInfo.getId()));
+        super(new BackupInfo(userInfo.getName(),
+                Backuper.Type.ALL, userInfo.getId()),
+                new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
 
         UserInfo copiedUserInfo = new UserInfo();
         BeanUtils.copyProperties(userInfo, copiedUserInfo);
@@ -51,20 +53,19 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
 
         // 获取所有日记
-        final List<NoteBook> allNotebookList = SpringContextUtil.getBean(CurrentUserTimepillApiService.class)
-                .getNotebookList(userInfo.getEmail());
+        final List<NoteBook> allNotebookList = this.getAllNotebooks();
 
-        // 下载所需备份文件中包含的所有图片，并填充正确的文件路径
-        List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList = downloadAllImagesAndConverPath(allNotebookList);
+        logger.info("下载所需备份文件中包含的所有图片，并填充正确的文件路径...");
+        List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList = this.downloadAllImagesAndConverPath(allNotebookList);
 
-        // 生成通用文件
-        commonFileGenerate();
+        logger.info("开始生成通用文件...");
+        this.commonFileGenerate();
 
-        // 生成用户主页文件
-        userHomeHTMLGenerate(userInfo, allNotebookList);
+        logger.info("开始生成用户主页文件...");
+        this.userHomeHTMLGenerate(userInfo, allNotebookList);
 
-        // 生成日记的HTML文件
-        allNotebookHTMLGenerate(notebookAndItsDiariesDTOList);
+        logger.info("开始生成日记的HTML文件...");
+        this.allNotebookHTMLGenerate(notebookAndItsDiariesDTOList);
 
 
         return new File(getGenerateFilesPath());
@@ -75,8 +76,6 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
      * 下载所需备份文件中包含的所有图片
      */
     private List<NotebookAndItsDiariesDTO> downloadAllImagesAndConverPath(List<NoteBook> allNotebookList) {
-
-        CurrentUserTimepillApiService openApiService = SpringContextUtil.getBean(CurrentUserTimepillApiService.class);
 
 
         List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList = new ArrayList<>();
@@ -90,7 +89,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
             allNotebookList.stream().parallel()
                     .forEach(noteBook -> {
 
-                        List<Diary> diaryList = openApiService.getDiaryList(noteBook.getId());
+                        List<Diary> diaryList = getAllDiaries(noteBook.getId());
 
                         allDiaryList.addAll(diaryList);
                         notebookAndItsDiariesDTOList.add(new NotebookAndItsDiariesDTO(noteBook, diaryList));
@@ -136,20 +135,15 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
             String targetFileURLWithId = getGenerateFilesPath() + "notebooks/" + noteBook.getId() + ".html";
             String targetFileURLWithName = getGenerateFilesPath() + "notebooks/" + noteBook.getId() + "_" + noteBook.getName() + ".html";
 
-            try {
-                FileCopyUtils.copy(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURLWithId));
-                FileCopyUtils.copy(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURLWithName));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
+            BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURLWithId));
+            BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURLWithName));
         });
     }
 
     private void commonFileGenerate() {
 
         // 准备通用的文件，如：CSS,系统图片
-        String notebookBackgroudImg = TimepillUtil.getConfig().getNotebookBackgroudImg();
+        String notebookBackgroudImg = TimepillUtil.getConfig().notebookBackgroudImg();
         if (!StringUtils.isNullOrEmpty(notebookBackgroudImg)) {
             BackupUtil.copyFile("images/" + notebookBackgroudImg, getGenerateFilesPath());
         }
@@ -166,24 +160,27 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     /**
      * 生成用户主页
      */
-    public void userHomeHTMLGenerate(UserInfo userInfo, List<NoteBook> allNotebookList) throws IOException {
+    private void userHomeHTMLGenerate(UserInfo userInfo, List<NoteBook> allNotebookList) {
 
+            NotebookStatisticDataVO statisticData = SpringContextUtil.getBean(DataAnalysisService.class)
+                    .analysisNotebook(userInfo, allNotebookList);
 
-        NotebookStatisticDataVO statisticData = SpringContextUtil.getBean(DataAnalysisService.class)
-                .analysisNotebook(userInfo, allNotebookList);
+            HomePageVO homePageVO = new HomePageVO(userInfo, statisticData, allNotebookList);
 
-        HomePageVO homePageVO = new HomePageVO(userInfo, statisticData, allNotebookList);
+            logger.info("333333333333333333333333333333");
+            Map<String, Object> context = new HashMap<>();
+            context.put("homePageVO", homePageVO);
+            context.put("notebookMap", TimepillUtil.groupByYear(allNotebookList));
+            context.put("backgroudImg", TimepillUtil.getConfig().notebookBackgroudImg());
 
+            logger.info("444444444444444444444444444444444444");
+            String homeHtml = TimepillUtil.render2html(context, USER_HOME_TEMPLATE_PATH);
+            String targetFileURL = getGenerateFilesPath() + userInfo.getName() + "的日记本.html";
 
-        Map<String, Object> context = new HashMap<>();
-        context.put("homePageVO", homePageVO);
-        context.put("notebookMap", TimepillUtil.groupByYear(allNotebookList));
-        context.put("backgroudImg", TimepillUtil.getConfig().getNotebookBackgroudImg());
+            logger.info("55555555555555555555555555555555555555");
 
-        String homeHtml = TimepillUtil.render2html(context, USER_HOME_TEMPLATE_PATH);
-        String targetFileURL = getGenerateFilesPath() + userInfo.getName() + "的日记本.html";
+            BackupUtil.copyFile(homeHtml.getBytes(StandardCharsets.UTF_8), new File(targetFileURL));
 
-        FileCopyUtils.copy(homeHtml.getBytes(StandardCharsets.UTF_8), new File(targetFileURL));
     }
 
 

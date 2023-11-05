@@ -7,7 +7,10 @@ import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderBuilder;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor.State;
 import com.socia1ca3t.timepillbackup.pojo.dto.BackupInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
+import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.service.CurrentUserTimepillApiService;
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
 import com.socia1ca3t.timepillbackup.util.CompressUtil;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
 public abstract class AbstractHTMLBackuper implements Backuper {
@@ -22,17 +26,16 @@ public abstract class AbstractHTMLBackuper implements Backuper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTMLBackuper.class);
 
-
     protected UserInfo userInfo;
-
+    private final CurrentUserTimepillApiService currentUserTimepillApiService;
     protected final ImgDownloaderBuilder downloaderBuilder;
-
     protected final ProgressMonitor monitor;
 
-    AbstractHTMLBackuper(BackupInfo info) {
+    AbstractHTMLBackuper(BackupInfo info, CurrentUserTimepillApiService currentUserTimepillApiService) {
 
         this.monitor = new ProgressMonitor(info);
         this.downloaderBuilder = new ImgDownloaderBuilder(new ImgPathConvertorForDownload()).monitor(monitor);
+        this.currentUserTimepillApiService = currentUserTimepillApiService;
     }
 
 
@@ -47,7 +50,6 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         }
 
         try {
-
             File sourceFile = generateFiles();
             monitor.updateState(State.COMPRESSING);
 
@@ -70,18 +72,15 @@ public abstract class AbstractHTMLBackuper implements Backuper {
     protected abstract File generateFiles() throws IOException;
 
 
-    protected void compressFiles(File sourceFile, File targetZipFile) {
+    protected void compressFiles(File sourceFile, File targetZipFile) throws IOException {
 
         logger.info(targetZipFile.getName() + "文件准备完毕，开始压缩...");
 
+        BackupUtil.makeDirs(targetZipFile);
+        targetZipFile.createNewFile();
         try {
-            BackupUtil.createDirectories(getBackupZipFilePath());
-            boolean created = targetZipFile.createNewFile();
-            if (!created) {
-                throw new RuntimeException(targetZipFile.getName() + "空文件创建失败");
-            }
-
             CompressUtil.zipWithPassword(sourceFile, targetZipFile, userInfo.getEmail());
+
         } catch (Exception e) {
 
             if (targetZipFile.exists()) {
@@ -96,7 +95,17 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         logger.info(targetZipFile.getName() + "文件压缩完成...");
     }
 
+    protected List<NoteBook> getAllNotebooks () {
 
+        return currentUserTimepillApiService.getCachableNotebookList();
+    }
+
+    protected List<Diary> getAllDiaries (int notebookId) {
+
+        return currentUserTimepillApiService.getCachableDiaryList(notebookId);
+    }
+
+    @Override
     public String getBackupZipFilePath() {
 
         return ImgPathConvertor.FILE_BASE_PATH + "zip/" + getBackupZipFileName();

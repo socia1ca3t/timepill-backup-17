@@ -44,7 +44,7 @@ public class ProgressMonitor {
     public void updateRestTaskNum(long restTaskNum) {
 
         this.restTaskNum = restTaskNum;
-        this.state = State.DOWNLOADING;
+        this.state = restTaskNum == 0 ? State.COMPRESSING : State.DOWNLOADING;
 
         backupObservable.setState(new BackupProgressVO(state, restTaskNum));
     }
