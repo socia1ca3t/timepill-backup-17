@@ -31,8 +31,18 @@
         详见我在 stackoverflow 提出的问题。<a href="https://stackoverflow.com/questions/76350019/the-cglib-enhancement-can-not-work-after-i-introduce-the-spring-boot-starter-dat">点击查看</a>。</li>
     <li>问题：部分浏览器，在息屏或切换到后台时，会断开浏览器的网络连接，导致下载进度无法更新。</li>
     <li>解决：前端每隔 3S 检测SSE连接是否关闭，若非正常关闭，则重新发起 SSE 连接。</li>
-    <li>问题：CDN图片服务器启用CC防护，大量频繁请求会被限流，导致下载失败。</li>
+    <li>问题：CDN 图片服务器启用CC防护，大量频繁请求会被限流，导致下载失败。</li>
     <li>解决：任务的消费者使用了延时队列，任务失败后，设置该任务的重试延迟时间，并重新加入队列。</li>
+</ul>
+
+
+<h3>使用 tracing agent 收集编译所需元数据</h3>
+<ul>
+    <li><a href="https://www.graalvm.org/latest/reference-manual/native-image/metadata/AutomaticMetadataCollection/">官方指南</a></li>
+    <li>在命令行中启动编译好的 JAR 文件：java -agentlib:native-image-agent=config-output-dir=\your\path\collection,config-write-period-secs=30,config-write-initial-delay-secs=5 -jar \your\path\timepill-backup-0.0.1-SNAPSHOT.jar</li>
+    <li>项目启动后将所有功能执行一次，确保编译所需的所有元数据被添加至：\your\path\collection </li>
+    <li>将 tracing agent 生成的文件放置在项目的 META-INF\native-image\ 路径下，构建镜像时会自动使用该路径内的配置文件。</li>
+    <li>注意：构建的 exe 文件运行时，若 HTML 模板渲染所需要的对象未注册为反射元数据，thymeleaf 渲染模板时会卡住，不会抛出任何异常或提示信息。</li>
 </ul>
 
 

@@ -167,17 +167,13 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
             HomePageVO homePageVO = new HomePageVO(userInfo, statisticData, allNotebookList);
 
-            logger.info("333333333333333333333333333333");
             Map<String, Object> context = new HashMap<>();
             context.put("homePageVO", homePageVO);
             context.put("notebookMap", TimepillUtil.groupByYear(allNotebookList));
             context.put("backgroudImg", TimepillUtil.getConfig().notebookBackgroudImg());
 
-            logger.info("444444444444444444444444444444444444");
             String homeHtml = TimepillUtil.render2html(context, USER_HOME_TEMPLATE_PATH);
             String targetFileURL = getGenerateFilesPath() + userInfo.getName() + "的日记本.html";
-
-            logger.info("55555555555555555555555555555555555555");
 
             BackupUtil.copyFile(homeHtml.getBytes(StandardCharsets.UTF_8), new File(targetFileURL));
 
