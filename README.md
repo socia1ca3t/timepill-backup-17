@@ -9,6 +9,14 @@
     <li>一键下载单本日记或所有日记。</li>
 </ul>
 
+<h3>使用指南</h3>
+<ul>
+    <li>在 windows 系统中下载 timepill-backup.exe 文件至本地。<a href="https://github.com/socia1ca3t/timepill-backup-17/releases/tag/Lasted">下载地址</a>
+    <li>双击运行，然后在浏览器地址框输入：http://localhost:10086/</li>
+    <li>使用胶囊账号和密码登录</li>
+</ul>
+
+
 ![example](https://github.com/socia1ca3t/timepill-backup/assets/147909308/a681bc57-4331-4573-97e8-d6437d2cb82a)
 
 <h3>技术与实践</h3>
