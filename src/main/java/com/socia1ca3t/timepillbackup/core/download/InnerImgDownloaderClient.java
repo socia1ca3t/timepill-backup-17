@@ -9,13 +9,21 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 
+
 @Slf4j
-public class ImgSyncDownloader implements ImgDownloader {
+class InnerImgDownloaderClient implements ImgDownloader {
 
 
     private List<Supplier<CountDownLatch>> downloadList;
-    private ProgressMonitor monitor;
+    private final ProgressMonitor monitor;
+    private final Mode mode;
+    private boolean started = false;
 
+    public InnerImgDownloaderClient(List<Supplier<CountDownLatch>> downloadList, Mode mode, ProgressMonitor monitor) {
+        this.downloadList = downloadList;
+        this.mode = mode;
+        this.monitor = monitor;
+    }
 
     @Override
     public void download() {
@@ -24,7 +32,30 @@ public class ImgSyncDownloader implements ImgDownloader {
             return;
         }
 
+        synchronized (this) {
+            if (started) {
+                throw new RuntimeException("任务已启动，请勿重复执行");
+            }
+            started = true;
+        }
+
+        if (mode == Mode.SYNC || mode == null) {
+
+            log.info("开始同步执行下载任务...");
+            doDownload();
+        } else if (mode == Mode.ASYNC) {
+
+            log.info("开始异步执行下载任务...");
+            new Thread(this::doDownload).start();
+        }
+    }
+
+    private void doDownload() {
+
+        // 开始执行下载任务，并获得所有的 CountDownLatch
         List<CountDownLatch> latchList = downloadList.stream().map(Supplier::get).toList();
+        downloadList = null;
+
         Optional<Long> restTaskNum;
         do {
             restTaskNum = latchList.stream().map(CountDownLatch::getCount).reduce(Long::sum);
@@ -37,13 +68,4 @@ public class ImgSyncDownloader implements ImgDownloader {
         log.info("下载任务执行完毕...");
     }
 
-    @Override
-    public void setDownloadList(List<Supplier<CountDownLatch>> downloadList) {
-        this.downloadList = downloadList;
-    }
-
-    @Override
-    public void setMonitor(ProgressMonitor monitor) {
-        this.monitor = monitor;
-    }
 }

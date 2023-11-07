@@ -4,7 +4,6 @@ import com.socia1ca3t.timepillbackup.config.CurrentUser;
 import com.socia1ca3t.timepillbackup.config.CurrentUserBasicAuthRestTemplate;
 import com.socia1ca3t.timepillbackup.core.convert.ImgPathConvertorForShow;
 import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderBuilder;
-import com.socia1ca3t.timepillbackup.core.download.ImgSyncDownloader;
 import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
 import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
@@ -33,12 +32,13 @@ import java.util.stream.Collectors;
 public class ViewController {
 
     private static final Log logger = LogFactory.getLog(ViewController.class);
-
+    private final DataAnalysisService dataAnalysisService;
     @Autowired
-    private DataAnalysisService dataAnalysisService;
+    public ViewController(DataAnalysisService dataAnalysisService) {
+        this.dataAnalysisService = dataAnalysisService;
+    }
 
     private final ImgPathConvertorForShow imgPathConvert = new ImgPathConvertorForShow();
-    private final ImgSyncDownloader imgDownload = new ImgSyncDownloader();
 
     @RequestMapping("/home")
     public String userHome(@CurrentUser UserInfo userInfo,
@@ -47,7 +47,10 @@ public class ViewController {
 
 
         // 下载用户头像并转换路径
-        new ImgDownloaderBuilder(imgPathConvert).userIcon(userInfo).build(imgDownload).download();
+        ImgDownloaderBuilder.createSyncMode(imgPathConvert)
+                .userIcon(userInfo)
+                .build()
+                .download();
 
         List<NoteBook> noteBooks = new CurrentUserTimepillApiService(restTemplate).getCachableNotebookList();
         logger.info(userInfo.getName() + "日记本数量" + noteBooks.size());
@@ -58,7 +61,11 @@ public class ViewController {
                 .collect(Collectors.toList());
 
         if (!hasCoverNotebooklist.isEmpty()) {
-            new ImgDownloaderBuilder(imgPathConvert).notebooksCover(hasCoverNotebooklist).build(imgDownload).download();
+
+            ImgDownloaderBuilder.createSyncMode(imgPathConvert)
+                    .notebooksCover(hasCoverNotebooklist)
+                    .build()
+                    .download();
         }
 
         // 数据分析
@@ -87,7 +94,11 @@ public class ViewController {
         // 下载所有日记的图片并转换
         List<Diary> diaries = currentUserApiService.getCachableDiaryList(notebookId);
         List<Diary> imgDiaryList = diaries.stream().filter(diary -> diary.getContentImgURL() != null).collect(Collectors.toList());
-        new ImgDownloaderBuilder(imgPathConvert).diaryImage(imgDiaryList, userInfo.getId()).build(imgDownload).download();
+        ImgDownloaderBuilder.
+                createSyncMode(imgPathConvert)
+                .diaryImage(imgDiaryList, userInfo.getId())
+                .build()
+                .download();
 
         // 获取该日记
         List<NoteBook> list = currentUserApiService.getCachableNotebookList();

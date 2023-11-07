@@ -6,15 +6,13 @@ import com.socia1ca3t.timepillbackup.core.convert.ImgPathConvertorForDownload;
 import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderBuilder;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor.State;
-import com.socia1ca3t.timepillbackup.pojo.dto.BackupInfo;
-import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.*;
 import com.socia1ca3t.timepillbackup.service.CurrentUserTimepillApiService;
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
 import com.socia1ca3t.timepillbackup.util.CompressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,14 +26,18 @@ public abstract class AbstractHTMLBackuper implements Backuper {
 
     protected UserInfo userInfo;
     private final CurrentUserTimepillApiService currentUserTimepillApiService;
-    protected final ImgDownloaderBuilder downloaderBuilder;
-    protected final ProgressMonitor monitor;
 
-    AbstractHTMLBackuper(BackupInfo info, CurrentUserTimepillApiService currentUserTimepillApiService) {
+    private final ImgPathConvertorForDownload imgPathConvert = new ImgPathConvertorForDownload();
+    private final ProgressMonitor monitor;
+
+    AbstractHTMLBackuper(UserInfo userInfo, BackupInfo info, CurrentUserTimepillApiService currentUserTimepillApiService) {
 
         this.monitor = new ProgressMonitor(info);
-        this.downloaderBuilder = new ImgDownloaderBuilder(new ImgPathConvertorForDownload()).monitor(monitor);
         this.currentUserTimepillApiService = currentUserTimepillApiService;
+
+        UserInfo copiedUserInfo = new UserInfo();
+        BeanUtils.copyProperties(userInfo, copiedUserInfo);
+        this.userInfo = copiedUserInfo;
     }
 
 
@@ -50,6 +52,23 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         }
 
         try {
+            // 先下载所有图片，并生成其在HTML模板中的路径
+            ImagesDownloadData data = getImagesDownloadData();
+
+            ImgDownloaderBuilder builder = ImgDownloaderBuilder
+                                    .createSyncMode(imgPathConvert)
+                                    .monitor(monitor)
+                                    .notebooksCover(data.hasCoverNotebooks())
+                                    .diaryImage(data.imgDiaries(), userInfo.getId());
+
+            if (data.userIcon()) {
+                builder.userIcon(userInfo);
+            }
+            builder.build().download();
+
+            logger.info("所有文件下载完成...");
+
+            // 再渲染HTML文件，以及生成通用文件
             File sourceFile = generateFiles();
             monitor.updateState(State.COMPRESSING);
 

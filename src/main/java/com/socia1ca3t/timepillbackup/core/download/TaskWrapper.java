@@ -4,13 +4,13 @@ package com.socia1ca3t.timepillbackup.core.download;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-public class DownloadTaskWrapper implements Runnable, Delayed {
+public class TaskWrapper implements Runnable, Delayed {
 
     private final Runnable task;
 
     private long delayTimeMillis = 0;
 
-    public DownloadTaskWrapper(Runnable task) {
+    public TaskWrapper(Runnable task) {
         this.task = task;
     }
 

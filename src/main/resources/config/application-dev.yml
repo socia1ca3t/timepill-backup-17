@@ -18,17 +18,17 @@ server:
 logging:
   level:
     org:
-      #thymeleaf: TRACE
-      springframework:
-      #security: TRACE
-      #hc.client5: TRACE
-      scheduling.concurrent.ThreadPoolTaskExecutor: DEBUG
+#      thymeleaf: TRACE
+#      springframework: TRACE
+#      security: TRACE
+#      hc.client5: TRACE
+#      scheduling.concurrent.ThreadPoolTaskExecutor: TRACE
 
 
 spring:
   devtools:
     restart:
-      enabled: true
+      enabled: false
 
 
 # 根据使用环境配置

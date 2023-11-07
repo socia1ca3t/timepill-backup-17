@@ -6,8 +6,7 @@ import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
 import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -18,19 +17,32 @@ import java.util.function.Supplier;
 /**
  * 图片的CDN服务器开启了图片防盗链，故需要下载图片，供前端展示时使用
  */
+@Slf4j
 public class ImgDownloaderBuilder {
-
-    private static final Logger logger = LoggerFactory.getLogger(ImgDownloaderBuilder.class);
 
     private final List<Supplier<CountDownLatch>> downloadList = new CopyOnWriteArrayList<>();
 
     private ProgressMonitor monitor;
 
+    private final ImgDownloader.Mode mode;
+
     private final ImgPathConvertor imgPathconvertor;
 
-    public ImgDownloaderBuilder(ImgPathConvertor convertor) {
+
+    public static ImgDownloaderBuilder createSyncMode(ImgPathConvertor imgPathconvertor) {
+
+        return new ImgDownloaderBuilder(imgPathconvertor, ImgDownloader.Mode.SYNC);
+    }
+
+    public static ImgDownloaderBuilder createAsyncMode(ImgPathConvertor imgPathconvertor) {
+
+        return new ImgDownloaderBuilder(imgPathconvertor, ImgDownloader.Mode.ASYNC);
+    }
+
+    private ImgDownloaderBuilder(ImgPathConvertor convertor, ImgDownloader.Mode mode) {
 
         this.imgPathconvertor = convertor;
+        this.mode = mode;
     }
 
     public ImgDownloaderBuilder userIcon(UserInfo userInfo) {
@@ -39,7 +51,7 @@ public class ImgDownloaderBuilder {
 
             CountDownLatch latch = new CountDownLatch(1);
 
-            DownloadTaskConsumer.getInstance().addTask(new DownloadTaskWrapper(() -> {
+            TaskConsumer.getInstance().addTask(new TaskWrapper(() -> {
 
 
                 int userId = userInfo.getId();
@@ -71,10 +83,10 @@ public class ImgDownloaderBuilder {
 
             CountDownLatch latch = new CountDownLatch(hasCoverNotebooks.size());
 
-            DownloadTaskConsumer taskConsumer = DownloadTaskConsumer.getInstance();
+            TaskConsumer taskConsumer = TaskConsumer.getInstance();
             hasCoverNotebooks.forEach(hasCoverNotebook ->
 
-                    taskConsumer.addTask(new DownloadTaskWrapper(() -> {
+                    taskConsumer.addTask(new TaskWrapper(() -> {
 
                         int userId = hasCoverNotebook.getUserId();
                         String imgURL = hasCoverNotebook.getCoverImgURL();
@@ -106,10 +118,10 @@ public class ImgDownloaderBuilder {
 
             CountDownLatch latch = new CountDownLatch(imgDiaryList.size());
 
-            DownloadTaskConsumer taskConsumer = DownloadTaskConsumer.getInstance();
+            TaskConsumer taskConsumer = TaskConsumer.getInstance();
             imgDiaryList.forEach(imgDiary ->
 
-                    taskConsumer.addTask(new DownloadTaskWrapper(() -> {
+                    taskConsumer.addTask(new TaskWrapper(() -> {
 
                         int notebookId = imgDiary.getNotebookId();
                         String imgURL = imgDiary.getContentImgURL();
@@ -136,11 +148,13 @@ public class ImgDownloaderBuilder {
         return this;
     }
 
-    public ImgDownloader build(ImgDownloader downloader) {
+    public ImgDownloader build() {
 
-        downloader.setDownloadList(downloadList);
-        downloader.setMonitor(monitor);
-        return downloader;
+        return new InnerImgDownloaderClient(
+                downloadList,
+                mode,
+                monitor
+        );
     }
 
 }
