@@ -1,8 +1,8 @@
-package com.socia1ca3t.timepillbackup.core.convert;
+package com.socia1ca3t.timepillbackup.core.path;
 
-import com.socia1ca3t.timepillbackup.core.ImgPathConvertor;
+import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 
-public abstract class AbstractImgPathConvertor implements ImgPathConvertor {
+public abstract class AbstractImgPathProducer implements ImgPathProducer {
 
 
     @Override

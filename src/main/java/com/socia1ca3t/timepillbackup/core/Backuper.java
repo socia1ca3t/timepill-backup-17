@@ -2,9 +2,10 @@ package com.socia1ca3t.timepillbackup.core;
 
 
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
-import com.socia1ca3t.timepillbackup.pojo.dto.ImagesDownloadData;
+import com.socia1ca3t.timepillbackup.pojo.dto.ImgDownloadInfo;
 
 import java.io.File;
+import java.util.List;
 
 public interface Backuper {
 
@@ -41,5 +42,5 @@ public interface Backuper {
 
     ProgressMonitor getProgressMonitor();
 
-    ImagesDownloadData getImagesDownloadData();
+    List<ImgDownloadInfo> getAllImageDownloadInfo();
 }

@@ -67,7 +67,7 @@ public class HttpClientUtil {
         return new HttpRequestInterceptor() {
             @SneakyThrows
             @Override
-            public void process(HttpRequest request, EntityDetails entity, HttpContext context) throws HttpException, IOException {
+            public void process(HttpRequest request, EntityDetails entity, HttpContext context) {
 
                 String requestHost = request.getUri().getHost();
                 String scheme = request.getUri().getScheme();

@@ -3,17 +3,15 @@ package com.socia1ca3t.timepillbackup.controller;
 import com.socia1ca3t.timepillbackup.config.CurrentUser;
 import com.socia1ca3t.timepillbackup.config.CurrentUserBasicAuthRestTemplate;
 import com.socia1ca3t.timepillbackup.core.Backuper;
-import com.socia1ca3t.timepillbackup.core.ImgPathConvertor;
+import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 import com.socia1ca3t.timepillbackup.core.backup.BackupObservable;
 import com.socia1ca3t.timepillbackup.core.backup.BackupObserver;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
 import com.socia1ca3t.timepillbackup.pojo.vo.BackupProgressVO;
 import com.socia1ca3t.timepillbackup.service.BackupService;
-import com.socia1ca3t.timepillbackup.service.LogService;
 import com.socia1ca3t.timepillbackup.util.BackupCacheUtil;
 import com.socia1ca3t.timepillbackup.util.DateUtil;
-import com.socia1ca3t.timepillbackup.util.SpringContextUtil;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
@@ -24,7 +22,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -67,8 +64,7 @@ public class BackupController {
 
 
     @GetMapping(value = "/progress/{prepareCode}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter getDownloadProgress(@PathVariable String prepareCode,
-                                          @RequestParam("logId") long logId) {
+    public SseEmitter getDownloadProgress(@PathVariable String prepareCode) {
 
 
         SseEmitter sseEmitter = new SseEmitter(0L);
@@ -85,9 +81,6 @@ public class BackupController {
             logger.info("{}注册SSE回调观察者完成", prepareCode);
 
         } else {
-
-            SpringContextUtil.getBean(LogService.class)
-                    .endPrepareFilesLogForException(logId, "未获取到HTMLBackuper备份器，结束此次任务，请重新下载。");
 
             logger.error("{}未获取到HTMLBackup备份器", prepareCode);
             BackupProgressVO progressVO = new BackupProgressVO(ProgressMonitor.State.EXCEPTION, "未获取到HTMLBackuper备份器");
@@ -170,14 +163,14 @@ public class BackupController {
     @GetMapping(value = "/backup/{zipFileName}")
     public ResponseEntity<StreamingResponseBody> downloadFile(
             @RequestHeader(value = "Range", required = false) String rangeHeader,
-            @PathVariable String zipFileName) throws IOException {
+            @PathVariable String zipFileName,
+            @RequestParam("prepareCode") String prepareCode) throws IOException {
 
 
-        if (!zipFileName.endsWith(".zip")) {
-            zipFileName = zipFileName + ".zip";
-        }
+        // 清除此次任务的缓存
+        BackupCacheUtil.evictIfPresent("HTMLBackup", prepareCode);
 
-        File file = new File(ImgPathConvertor.FILE_BASE_PATH + "zip/" + zipFileName);
+        File file = new File(ImgPathProducer.FILE_BASE_PATH + "zip/" + zipFileName);
         if (!file.exists()) {
             return backupService.getHTMLStreamingResponseEntity("show_warn_msg_page",
                     "msg", "文件已被删除，请重新下载");
@@ -252,25 +245,6 @@ public class BackupController {
             return contentLength - 1;
         }
         return ranges.get(0).getRangeEnd(contentLength);
-    }
-
-
-    @PostMapping(value = "/evaluation/{prepareLogId}")
-    public String commentOnDownload(@PathVariable Long prepareLogId,
-                                    @RequestParam String evaluation,
-                                    Model model) {
-
-        try {
-            SpringContextUtil.getBean(LogService.class).updateUserEvalutionOfPrepareFilesLog(prepareLogId, evaluation);
-
-        } catch (Exception e) {
-
-            logger.error("保存用户评价失败", e);
-        }
-
-        model.addAttribute("msg", "谢谢你的反馈");
-
-        return "show_warn_msg_page";
     }
 
 

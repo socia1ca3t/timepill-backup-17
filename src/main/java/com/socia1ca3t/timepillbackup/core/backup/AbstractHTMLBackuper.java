@@ -1,12 +1,16 @@
 package com.socia1ca3t.timepillbackup.core.backup;
 
 import com.socia1ca3t.timepillbackup.core.Backuper;
-import com.socia1ca3t.timepillbackup.core.ImgPathConvertor;
-import com.socia1ca3t.timepillbackup.core.convert.ImgPathConvertorForDownload;
-import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderBuilder;
+import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
+import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderClient;
+import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForDownload;
+import com.socia1ca3t.timepillbackup.core.path.MyImgPathSetter;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor.State;
-import com.socia1ca3t.timepillbackup.pojo.dto.*;
+import com.socia1ca3t.timepillbackup.pojo.dto.BackupInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
+import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
 import com.socia1ca3t.timepillbackup.service.CurrentUserTimepillApiService;
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
 import com.socia1ca3t.timepillbackup.util.CompressUtil;
@@ -17,17 +21,16 @@ import org.springframework.beans.BeanUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 public abstract class AbstractHTMLBackuper implements Backuper {
 
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTMLBackuper.class);
-
     protected UserInfo userInfo;
+    protected final MyImgPathSetter imgPathSetter = new MyImgPathSetter(new ImgPathProduceForDownload());
     private final CurrentUserTimepillApiService currentUserTimepillApiService;
-
-    private final ImgPathConvertorForDownload imgPathConvert = new ImgPathConvertorForDownload();
     private final ProgressMonitor monitor;
 
     AbstractHTMLBackuper(UserInfo userInfo, BackupInfo info, CurrentUserTimepillApiService currentUserTimepillApiService) {
@@ -52,43 +55,34 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         }
 
         try {
-            // 先下载所有图片，并生成其在HTML模板中的路径
-            ImagesDownloadData data = getImagesDownloadData();
+            // 下载所有图片
+            CompletableFuture<Void> downloadAllImg = CompletableFuture.runAsync(() -> ImgDownloaderClient
+                                                                            .createSyncMode(getAllImageDownloadInfo())
+                                                                            .monitor(monitor).download());
+            // 渲染HTML文件，以及生成通用文件
+            CompletableFuture<File> generateFiles = CompletableFuture.supplyAsync(this::generateFiles);
 
-            ImgDownloaderBuilder builder = ImgDownloaderBuilder
-                                    .createSyncMode(imgPathConvert)
-                                    .monitor(monitor)
-                                    .notebooksCover(data.hasCoverNotebooks())
-                                    .diaryImage(data.imgDiaries(), userInfo.getId());
+            // 等待任务1和任务2都完成
+            CompletableFuture.allOf(downloadAllImg, generateFiles).join();
 
-            if (data.userIcon()) {
-                builder.userIcon(userInfo);
-            }
-            builder.build().download();
-
-            logger.info("所有文件下载完成...");
-
-            // 再渲染HTML文件，以及生成通用文件
-            File sourceFile = generateFiles();
             monitor.updateState(State.COMPRESSING);
+            compressFiles(generateFiles.get(), targetZipFile);
 
-            compressFiles(sourceFile, targetZipFile);
             monitor.updateState(State.FINISHED);
 
         } catch (Exception e) {
 
-            logger.error("准备备份文件异常", e);
+            logger.error("准备备份文件异常{}", targetZipFile.getName(), e);
             monitor.endWithException(e);
 
             return null;
         }
 
-
         return targetZipFile;
     }
 
 
-    protected abstract File generateFiles() throws IOException;
+    protected abstract File generateFiles();
 
 
     protected void compressFiles(File sourceFile, File targetZipFile) throws IOException {
@@ -127,7 +121,7 @@ public abstract class AbstractHTMLBackuper implements Backuper {
     @Override
     public String getBackupZipFilePath() {
 
-        return ImgPathConvertor.FILE_BASE_PATH + "zip/" + getBackupZipFileName();
+        return ImgPathProducer.FILE_BASE_PATH + "zip/" + getBackupZipFileName();
     }
 
     @Override

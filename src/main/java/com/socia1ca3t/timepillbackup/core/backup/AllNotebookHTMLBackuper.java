@@ -1,7 +1,7 @@
 package com.socia1ca3t.timepillbackup.core.backup;
 
 import com.socia1ca3t.timepillbackup.core.Backuper;
-import com.socia1ca3t.timepillbackup.core.ImgPathConvertor;
+import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 import com.socia1ca3t.timepillbackup.pojo.dto.*;
 import com.socia1ca3t.timepillbackup.pojo.vo.HomePageVO;
 import com.socia1ca3t.timepillbackup.pojo.vo.NotebookStatisticDataVO;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +26,9 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     public static final String USER_HOME_TEMPLATE_PATH = "download/user_home_page";
 
-    private List<NoteBook> allNotebookList;
+    private final List<NoteBook> allNotebookList = super.getAllNotebooks();
+
+    private final List<ImgDownloadInfo> needDownloadImgs;
     private List<Diary> allDiaryList;
     private List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList;
 
@@ -38,11 +39,11 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
                 new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
 
         initData();
+        needDownloadImgs = doHTMLSrcPathSet();
     }
 
-    protected void initData() {
+    private void initData() {
 
-        allNotebookList = super.getAllNotebooks();
         allDiaryList = new ArrayList<>();
         notebookAndItsDiariesDTOList = new ArrayList<>();
 
@@ -60,8 +61,25 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     }
 
+    private List<ImgDownloadInfo> doHTMLSrcPathSet() {
+
+        List<Diary> allImageDiaryList = null;
+
+        if (!allDiaryList.isEmpty()) {
+            // 获取所有图片日记
+            allImageDiaryList = allDiaryList.stream().parallel().filter(diary -> diary.getContentImgURL() != null).toList();
+        }
+
+        List<ImgDownloadInfo> list = new ArrayList<>();
+        list.add(imgPathSetter.userIcon(userInfo));
+        list.addAll(imgPathSetter.notebooksCover(allNotebookList));
+        list.addAll(imgPathSetter.diaryImage(allImageDiaryList));
+
+        return list;
+    }
+
     @Override
-    protected File generateFiles() throws IOException {
+    protected File generateFiles() {
 
         log.info("开始生成通用文件...");
         this.commonFileGenerate();
@@ -77,17 +95,12 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     }
 
 
+
+
     @Override
-    public ImagesDownloadData getImagesDownloadData() {
+    public List<ImgDownloadInfo> getAllImageDownloadInfo() {
 
-        List<Diary> allImageDiaryList = new ArrayList<>();
-
-        if (!allDiaryList.isEmpty()) {
-            // 获取所有图片日记
-            allImageDiaryList = allDiaryList.stream().parallel().filter(diary -> diary.getContentImgURL() != null).toList();
-        }
-
-        return new ImagesDownloadData(true, allNotebookList, allImageDiaryList);
+        return needDownloadImgs;
     }
 
     /**
@@ -147,7 +160,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     @Override
     public String getGenerateFilesPath() {
 
-        return ImgPathConvertor.FILE_BASE_PATH + userInfo.getId() + "/";
+        return ImgPathProducer.FILE_BASE_PATH + userInfo.getId() + "/";
     }
 
     @Override

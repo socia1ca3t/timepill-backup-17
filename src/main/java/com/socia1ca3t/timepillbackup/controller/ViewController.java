@@ -2,8 +2,9 @@ package com.socia1ca3t.timepillbackup.controller;
 
 import com.socia1ca3t.timepillbackup.config.CurrentUser;
 import com.socia1ca3t.timepillbackup.config.CurrentUserBasicAuthRestTemplate;
-import com.socia1ca3t.timepillbackup.core.convert.ImgPathConvertorForShow;
-import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderBuilder;
+import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderClient;
+import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForShow;
+import com.socia1ca3t.timepillbackup.core.path.MyImgPathSetter;
 import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
 import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +39,7 @@ public class ViewController {
     public ViewController(DataAnalysisService dataAnalysisService) {
         this.dataAnalysisService = dataAnalysisService;
     }
-
-    private final ImgPathConvertorForShow imgPathConvert = new ImgPathConvertorForShow();
+    protected final MyImgPathSetter imgPathSetter = new MyImgPathSetter(new ImgPathProduceForShow());
 
     @RequestMapping("/home")
     public String userHome(@CurrentUser UserInfo userInfo,
@@ -46,26 +47,20 @@ public class ViewController {
                            Model model) {
 
 
+
         // 下载用户头像并转换路径
-        ImgDownloaderBuilder.createSyncMode(imgPathConvert)
-                .userIcon(userInfo)
-                .build()
-                .download();
+        ImgDownloaderClient.createSyncMode(Collections.singletonList(imgPathSetter.userIcon(userInfo))).download();
 
         List<NoteBook> noteBooks = new CurrentUserTimepillApiService(restTemplate).getCachableNotebookList();
         logger.info(userInfo.getName() + "日记本数量" + noteBooks.size());
 
-        // 下载日记本封面并转换路径
         List<NoteBook> hasCoverNotebooklist = noteBooks.stream()
                 .filter(notebook -> notebook.getCoverImgURL() != null)
                 .collect(Collectors.toList());
 
         if (!hasCoverNotebooklist.isEmpty()) {
-
-            ImgDownloaderBuilder.createSyncMode(imgPathConvert)
-                    .notebooksCover(hasCoverNotebooklist)
-                    .build()
-                    .download();
+            // 下载日记本封面并转换路径
+            ImgDownloaderClient.createSyncMode(imgPathSetter.notebooksCover(hasCoverNotebooklist)).download();
         }
 
         // 数据分析
@@ -94,11 +89,7 @@ public class ViewController {
         // 下载所有日记的图片并转换
         List<Diary> diaries = currentUserApiService.getCachableDiaryList(notebookId);
         List<Diary> imgDiaryList = diaries.stream().filter(diary -> diary.getContentImgURL() != null).collect(Collectors.toList());
-        ImgDownloaderBuilder.
-                createSyncMode(imgPathConvert)
-                .diaryImage(imgDiaryList, userInfo.getId())
-                .build()
-                .download();
+        ImgDownloaderClient.createSyncMode(imgPathSetter.diaryImage(imgDiaryList)).download();
 
         // 获取该日记
         List<NoteBook> list = currentUserApiService.getCachableNotebookList();

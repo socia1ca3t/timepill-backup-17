@@ -2,14 +2,9 @@ package com.socia1ca3t.timepillbackup.service;
 
 import com.socia1ca3t.timepillbackup.core.Backuper;
 import com.socia1ca3t.timepillbackup.core.backup.AllNotebookHTMLBackuper;
-import com.socia1ca3t.timepillbackup.core.backup.BackupObserver;
 import com.socia1ca3t.timepillbackup.core.backup.SingleNotebookHTMLBackuper;
-import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
-import com.socia1ca3t.timepillbackup.pojo.entity.PrepareFilesLog;
-import com.socia1ca3t.timepillbackup.pojo.vo.BackupProgressVO;
-import com.socia1ca3t.timepillbackup.repository.PrepareFilesLogRepository;
 import com.socia1ca3t.timepillbackup.util.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -20,7 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -29,12 +23,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -42,9 +33,6 @@ import java.util.function.BiConsumer;
 public class BackupService {
 
     private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
-
-    private final LogService logService;
-    private final PrepareFilesLogRepository prepareFilesRepo;
 
 
     public ResponseEntity<StreamingResponseBody> backupSingleNotebookToHTML(UserInfo user, String notebookId, RestTemplate userBasicAuthRestTemplate) {
@@ -78,18 +66,15 @@ public class BackupService {
 
         try {
 
-            Long prepareLogId = getPrepareIdIfBackuping(prepareCode);
-            if (prepareLogId != null) {
+            Backuper lastBackuper = BackupCacheUtil.get("HTMLBackup", prepareCode);
+            if (lastBackuper != null) {
 
                 logger.info("{}文件正在准备中，直接跳转至任务进度观察界面", prepareCode);
                 return getHTMLStreamingResponseEntity("show_download_progress",
                         "prepareCode", prepareCode,
-                        "logId", String.valueOf(prepareLogId),
                         "zipFileName", backuper.getBackupZipFileName());
             }
 
-            final Date downloadStartDate = new Date();
-            final PrepareFilesLog prepareFilesLog = logService.insertPrepareFilesLog(username, downloadStartDate, null, type, prepareCode, backuper.getBackupZipFileName());
 
             logger.info("{}开始异步准备文件", backuper.getBackupZipFileName());
 
@@ -103,8 +88,7 @@ public class BackupService {
                     return getHTMLStreamingResponseEntity("show_warn_msg_page", "msg", "文件准备异常，请重试。");
                 }
 
-                logService.updateCompeleDateOfPrepareFilesLog(prepareFilesLog, new Date());
-                logger.info("{}文件准备完毕，用时{}分", backuper.getBackupZipFileName(), prepareFilesLog.getMinutesSpend());
+                logger.info("{}文件准备完毕", backuper.getBackupZipFileName());
 
                 File zipFile = prepareFilefuture.join();
                 StreamingResponseBody responseStream = deleteFileAfterSendingToClient(zipFile, zipFile);
@@ -117,20 +101,11 @@ public class BackupService {
 
             } else {
 
-                // 先清除历史任务的缓存，再创建新的，供SseEmitter getDownloadProgress使用
-                BackupCacheUtil.evictIfPresent("HTMLBackup", prepareCode);
+                // 供SseEmitter getDownloadProgress使用
                 BackupCacheUtil.put("HTMLBackup", prepareCode, backuper);
-
-
-                backuper.getProgressMonitor().addObserver(getExceptionObserver(backuper, prepareFilesLog));
-                backuper.getProgressMonitor().addObserver(getFinishedObserver(backuper, prepareFilesLog));
-
-
-                backuper.getProgressMonitor().getBackupInfo().setPrepareLogId(prepareFilesLog.getId());
 
                 return getHTMLStreamingResponseEntity("show_download_progress",
                         "prepareCode", prepareCode,
-                        "logId", String.valueOf(prepareFilesLog.getId()),
                         "zipFileName", backuper.getBackupZipFileName());
             }
 
@@ -147,64 +122,6 @@ public class BackupService {
     }
 
 
-    private Long getPrepareIdIfBackuping(String prepareCode) {
-
-        List<PrepareFilesLog> list = prepareFilesRepo.findByCompleteDateAndExceptionDateIsNull(prepareCode);
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-        return list.get(0).getId();
-    }
-
-
-    /**
-     * 备份文件任务异常状态的观察者
-     *
-     * @param backuper 文件备份任务
-     * @param log      此次备份文件的log对象
-     * @return 文件准备异常的观察者
-     */
-    private BackupObserver getExceptionObserver(Backuper backuper, PrepareFilesLog log) {
-
-        BiConsumer<Observable, BackupProgressVO> consumer = (observable, downloadProgressVO) -> {
-
-            if (downloadProgressVO.getState() == ProgressMonitor.State.EXCEPTION) {
-
-                logger.info("{}文件准备异常:{}", backuper.getBackupZipFileName(), downloadProgressVO.getMsg());
-
-                logService.updateExceptionDateOfPrepareFilesLog(log, new Date(), downloadProgressVO.getMsg());
-            }
-
-        };
-
-
-        return new BackupObserver(consumer);
-    }
-
-
-    /**
-     * 备份文件任务结束状态的观察者
-     *
-     * @param backuper 文件备份任务
-     * @param log      此次备份文件的log对象
-     * @return 文件准备异常的观察者
-     */
-    private BackupObserver getFinishedObserver(Backuper backuper, PrepareFilesLog log) {
-
-        BiConsumer<Observable, BackupProgressVO> consumer = (observable, downloadProgressVO) -> {
-
-            if (downloadProgressVO.getState() == ProgressMonitor.State.FINISHED) {
-
-                logger.info("{}文件准备完毕", backuper.getBackupZipFileName());
-
-                logService.updateCompeleDateOfPrepareFilesLog(log, new Date());
-            }
-        };
-
-        return new BackupObserver(consumer);
-    }
-
-
     public StreamingResponseBody deleteFileAfterSendingToClient(File fileWaitForDeleting, File fileForSending) {
 
 
@@ -216,11 +133,9 @@ public class BackupService {
 
                 if (fileWaitForDeleting.delete()) {
                     logger.info("{}文件下载完成，删除文件成功", fileWaitForDeleting.getName());
-                    logService.insertFileDeleteLog(true, fileWaitForDeleting.getAbsolutePath(), new Date(), new Date());
 
                 } else {
                     logger.info("{}文件下载完成，删除文件失败", fileWaitForDeleting.getName());
-                    logService.insertFileDeleteLog(false, fileWaitForDeleting.getAbsolutePath(), new Date(), null);
                 }
             } catch (IOException e) {
                 logger.error("响应文件异常，请重试", e);

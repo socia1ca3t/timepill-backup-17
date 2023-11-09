@@ -1,7 +1,7 @@
 package com.socia1ca3t.timepillbackup.core.backup;
 
 import com.socia1ca3t.timepillbackup.core.Backuper;
-import com.socia1ca3t.timepillbackup.core.ImgPathConvertor;
+import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 import com.socia1ca3t.timepillbackup.pojo.dto.*;
 import com.socia1ca3t.timepillbackup.service.CurrentUserTimepillApiService;
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,10 +22,11 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     private static final String DIARY_TEMPLATE_PATH = "download/single_diary_index";
 
-
     // 需要下载的日记本
     private final NoteBook noteBook;
     private final List<Diary> allDiaryList;
+    private final List<ImgDownloadInfo> needDownloadImgs;
+
 
     public SingleNotebookHTMLBackuper(NoteBook noteBook, UserInfo userInfo, RestTemplate userBasicAuthRestTemplate) {
 
@@ -40,11 +40,18 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
         BeanUtils.copyProperties(noteBook, copiedNoteBook);
         this.noteBook = copiedNoteBook;
         this.allDiaryList = getAllDiaries(noteBook.getId());
+
+        // 获取所有带有图片的日记
+        List<Diary> allImageDiaryList = allDiaryList.stream()
+                                                    .filter(diary -> diary.getContentImgURL() != null)
+                                                    .collect(Collectors.toList());
+
+        needDownloadImgs = imgPathSetter.diaryImage(allImageDiaryList);
     }
 
 
     @Override
-    public File generateFiles() throws IOException {
+    public File generateFiles() {
 
         logger.info("{}开始准备单个日记本[{}]", userInfo.getEmail(), noteBook.getName());
 
@@ -63,21 +70,16 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
 
     @Override
-    public ImagesDownloadData getImagesDownloadData() {
+    public List<ImgDownloadInfo> getAllImageDownloadInfo() {
 
-        // 获取所有带有图片的日记
-        List<Diary> allImageDiaryList = allDiaryList.stream()
-                                        .filter(diary -> diary.getContentImgURL() != null)
-                                        .collect(Collectors.toList());
-
-        return new ImagesDownloadData(false, List.of(noteBook), allImageDiaryList);
+        return needDownloadImgs;
     }
 
 
     @Override
     public String getGenerateFilesPath() {
 
-        return ImgPathConvertor.FILE_BASE_PATH + userInfo.getId() + "/notebooks/" + noteBook.getId() + "/";
+        return ImgPathProducer.FILE_BASE_PATH + userInfo.getId() + "/notebooks/" + noteBook.getId() + "/";
     }
 
     @Override

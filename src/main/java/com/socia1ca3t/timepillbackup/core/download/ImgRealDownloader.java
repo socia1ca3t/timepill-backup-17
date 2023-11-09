@@ -3,15 +3,16 @@ package com.socia1ca3t.timepillbackup.core.download;
 
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
 import com.socia1ca3t.timepillbackup.util.SpringContextUtil;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -32,13 +33,14 @@ public class ImgRealDownloader {
      * @param url    图片URL
      * @return 文件名
      */
-    public static String downloadImg(String abPath, String url) {
+    public static String download(String url, String abPath, String fileName) {
 
 
         try {
+            if (!StringUtils.hasText(fileName)) {
+                fileName = getOriginalFileName(url);
+            }
 
-            url = queryParamFilter(url);
-            final String fileName = getFileName(url);
             final String targetFileURL = abPath + fileName;
 
             if (new File(targetFileURL).exists()) {
@@ -69,45 +71,25 @@ public class ImgRealDownloader {
 
     }
 
-    /**
-     * 将用户的头像下载到本地
-     */
-    public static String downloadIcon(String abPath, String url) {
-
-        return downloadImg(abPath, url);
-    }
-
-    /**
-     * 将日记封面下载到本地
-     */
-    public static String downloadCover(String abPath, String url) {
-
-        return downloadImg(abPath, url);
-    }
 
     /**
      * 如果为日记图片，则需要过滤!large后缀
      */
-    private static String getFileName(String url) {
 
-        try {
-            return new File(new URL(url).getPath()).getName().replace("!large", "");
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
+    @SneakyThrows
+    public static String getOriginalFileName(String url) {
+
+        url = queryParamFilter(url);
+        return new File(new URL(url).getPath()).getName().replace("!large", "");
     }
 
     /**
      * 得到没有查询字符串的URL路径，
      */
-    public static String queryParamFilter(String url) {
+    @SneakyThrows
+    private static String queryParamFilter(String url) {
 
-        URL correcetURL;
-        try {
-            correcetURL = new URL(url);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("URL地址不合法");
-        }
+        URL correcetURL = new URL(url);
 
         int index = correcetURL.toString().indexOf('?');
         if (index > -1) {
