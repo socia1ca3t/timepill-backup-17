@@ -3,8 +3,8 @@ package com.socia1ca3t.timepillbackup.controller;
 import com.socia1ca3t.timepillbackup.config.CurrentUser;
 import com.socia1ca3t.timepillbackup.config.CurrentUserBasicAuthRestTemplate;
 import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderClient;
-import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForShow;
-import com.socia1ca3t.timepillbackup.core.path.MyImgPathSetter;
+import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForFrontEnd;
+import com.socia1ca3t.timepillbackup.core.path.ImgTagSrcPathSetterForHtml;
 import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
 import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
 import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
@@ -39,7 +39,7 @@ public class ViewController {
     public ViewController(DataAnalysisService dataAnalysisService) {
         this.dataAnalysisService = dataAnalysisService;
     }
-    protected final MyImgPathSetter imgPathSetter = new MyImgPathSetter(new ImgPathProduceForShow());
+    protected final ImgTagSrcPathSetterForHtml imgPathSetter = new ImgTagSrcPathSetterForHtml(new ImgPathProduceForFrontEnd());
 
     @RequestMapping("/home")
     public String userHome(@CurrentUser UserInfo userInfo,

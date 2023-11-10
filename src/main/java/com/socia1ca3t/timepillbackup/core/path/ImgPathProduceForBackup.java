@@ -2,9 +2,9 @@ package com.socia1ca3t.timepillbackup.core.path;
 
 
 /**
- * 准备压缩文件时使用，下载远程资源，并返回基于用户临时文件夹的相对路径
+ * 备份文件时使用，获得图片在 HTML 中 img 标签的 src 路径，以及图片下载之后的存储路径
  */
-public class ImgPathProduceForDownload extends AbstractImgPathProducer {
+public class ImgPathProduceForBackup extends AbstractImgPathProducer {
 
 
     @Override

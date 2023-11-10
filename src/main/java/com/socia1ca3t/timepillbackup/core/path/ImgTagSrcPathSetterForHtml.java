@@ -12,12 +12,15 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyImgPathSetter implements ImgPathSetter {
+/**
+ * 设置图片在 HTML 中 img 标签的 src 路径
+ */
+public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
 
 
     private final ImgPathProducer imgPathProducer;
 
-    public MyImgPathSetter(ImgPathProducer imgPathProducer) {
+    public ImgTagSrcPathSetterForHtml(ImgPathProducer imgPathProducer) {
         this.imgPathProducer = imgPathProducer;
     }
 

@@ -2,9 +2,9 @@ package com.socia1ca3t.timepillbackup.core.path;
 
 
 /**
- * 前端显示用，下载远程资源，并返回基于notebookTemp路径的相对路径
+ * 前端显示用，获得图片在 HTML 中 img 标签的 src 路径，以及图片下载之后的存储路径
  */
-public class ImgPathProduceForShow extends AbstractImgPathProducer {
+public class ImgPathProduceForFrontEnd extends AbstractImgPathProducer {
 
 
     @Override

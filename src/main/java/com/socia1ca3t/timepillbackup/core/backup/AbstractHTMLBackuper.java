@@ -3,8 +3,8 @@ package com.socia1ca3t.timepillbackup.core.backup;
 import com.socia1ca3t.timepillbackup.core.Backuper;
 import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderClient;
-import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForDownload;
-import com.socia1ca3t.timepillbackup.core.path.MyImgPathSetter;
+import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForBackup;
+import com.socia1ca3t.timepillbackup.core.path.ImgTagSrcPathSetterForHtml;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor.State;
 import com.socia1ca3t.timepillbackup.pojo.dto.BackupInfo;
@@ -29,7 +29,7 @@ public abstract class AbstractHTMLBackuper implements Backuper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTMLBackuper.class);
     protected UserInfo userInfo;
-    protected final MyImgPathSetter imgPathSetter = new MyImgPathSetter(new ImgPathProduceForDownload());
+    protected final ImgTagSrcPathSetterForHtml imgPathSetter = new ImgTagSrcPathSetterForHtml(new ImgPathProduceForBackup());
     private final CurrentUserTimepillApiService currentUserTimepillApiService;
     private final ProgressMonitor monitor;
 
