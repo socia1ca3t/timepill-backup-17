@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +23,8 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     // 需要下载的日记本
     private final NoteBook noteBook;
-    private final List<Diary> allDiaryList;
-    private final List<ImgDownloadInfo> needDownloadImgs;
+    private List<Diary> allDiaryList;
+    private List<ImgDownloadInfo> needDownloadImgs;
 
 
     public SingleNotebookHTMLBackuper(NoteBook noteBook, UserInfo userInfo, RestTemplate userBasicAuthRestTemplate) {
@@ -39,16 +38,21 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
         NoteBook copiedNoteBook = new NoteBook();
         BeanUtils.copyProperties(noteBook, copiedNoteBook);
         this.noteBook = copiedNoteBook;
+    }
+
+    @Override
+    protected void initData() {
+
+
         this.allDiaryList = getAllDiaries(noteBook.getId());
 
         // 获取所有带有图片的日记
         List<Diary> allImageDiaryList = allDiaryList.stream()
-                                                    .filter(diary -> diary.getContentImgURL() != null)
-                                                    .collect(Collectors.toList());
+                .filter(diary -> diary.getContentImgURL() != null)
+                .collect(Collectors.toList());
 
         needDownloadImgs = imgPathSetter.diaryImage(allImageDiaryList);
     }
-
 
     @Override
     public File generateFiles() {
@@ -61,9 +65,11 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
         // 生成日记的HTML文件
         String html = BackupUtil.generateSingleNotebookHTML(new NotebookAndItsDiariesDTO(noteBook, allDiaryList), getDiaryTemplatePath());
 
-        String targetFileURL = getGenerateFilesPath() + noteBook.getId() + "_" + noteBook.getName() + ".html";
+        String targetFileURLWithId = getGenerateFilesPath() + noteBook.getId() + ".html";
+        String targetFileURLWithName = getGenerateFilesPath() + noteBook.getId() + "_"
+                                        + BackupUtil.filterIllegalCharOfFilePath(noteBook.getName()) + ".html";
 
-        BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURL));
+        BackupUtil.generateNotebookFile(html, targetFileURLWithId, targetFileURLWithName);
 
         return new File(getGenerateFilesPath());
     }

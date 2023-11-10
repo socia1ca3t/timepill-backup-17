@@ -16,27 +16,29 @@ public interface Backuper {
 
     /**
      * 不同的下载类型，日记模板不同
-     *
      * @return 日记模板的路径
      */
     String getDiaryTemplatePath();
 
 
     /**
-     * 不同的下载类型，目标文件夹不同
-     *
-     * @return 目标文件夹的路径
+     * 所有文件准备完毕后，获取该文件夹的路径
      */
     String getGenerateFilesPath();
 
 
+    /**
+     * 所有需要备份的文件压缩后的文件名
+     */
     String getBackupZipFileName();
 
-
+    /**
+     * 所有需要备份的文件压缩后的文件的路径
+     */
     String getBackupZipFilePath();
 
     /**
-     * 生成压缩的备份文件
+     * 执行备份任务
      */
     File execute();
 

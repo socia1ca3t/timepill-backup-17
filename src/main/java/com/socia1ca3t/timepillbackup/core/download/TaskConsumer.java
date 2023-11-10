@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -36,16 +38,7 @@ public class TaskConsumer {
                     if (task != null) {
 
                         logger.info("{},将任务提交到线程池...", task.hashCode());
-                        Future<?> future = threadPool.submit(() -> runTaskFunc.accept(task));
-
-                        try {
-                            future.get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            logger.error("线程池任务执行异常", e);
-                            task.setDelay(1, TimeUnit.MINUTES);
-                            addTask(task);
-                        }
-
+                        threadPool.submit(() -> runTaskFunc.accept(task));
                     }
 
                 } catch (Exception e) {

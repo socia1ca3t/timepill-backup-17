@@ -22,8 +22,6 @@ public class TemplateUtil {
 
     public static String render2html(final Map map, String templateName) {
 
-        log.info("开始渲染" + templateName);
-
         Context context = new Context();
         context.setVariables(map);
         return templateEngine.process(templateName, context);

@@ -6,18 +6,22 @@ import com.socia1ca3t.timepillbackup.pojo.vo.DiariesStatisticData;
 import com.socia1ca3t.timepillbackup.service.DataAnalysisService;
 import jakarta.validation.constraints.NotNull;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class BackupUtil {
 
 
@@ -54,15 +58,46 @@ public class BackupUtil {
 
 
         DiariesStatisticData statisticData = SpringContextUtil.getBean(DataAnalysisService.class).analysisDiary(noteBookAndItsDiariesDTO.getDiarieList());
-        DiariesIndexVO diariesIndexVO = new DiariesIndexVO(noteBookAndItsDiariesDTO.getDiarieList(), statisticData, noteBookAndItsDiariesDTO.getNoteBook());
-
+        DiariesIndexVO diariesIndexVO = new DiariesIndexVO(noteBookAndItsDiariesDTO.getDiarieList(),
+                                                            statisticData,
+                                                            noteBookAndItsDiariesDTO.getNoteBook());
 
         Map<String, Object> context = new HashMap<>();
         context.put("diariesIndexVO", diariesIndexVO);
-        context.put("backgroudImg", TimepillUtil.getConfig().notebookBackgroudImg());
 
+        String html = TimepillUtil.render2html(context, diaryTemplatePath);
+        if (!StringUtils.hasText(html)) {
+            throw new RuntimeException(diaryTemplatePath + "渲染 HTML 失败");
+        }
 
-        return TimepillUtil.render2html(context, diaryTemplatePath);
+        return html;
+    }
+
+    public static void generateNotebookFile(String html, String targetFileURLWithId, String targetFileURLWithName) {
+
+        File notebookHtmlWithId = new File(targetFileURLWithId);
+        File notebookHtmlWithName = new File(targetFileURLWithName);
+        BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), notebookHtmlWithId);
+        BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), notebookHtmlWithName);
+
+        if (!notebookHtmlWithId.exists() || notebookHtmlWithId.length() == 0) {
+            throw new RuntimeException(notebookHtmlWithId + "生成文件失败");
+        }
+        if (!notebookHtmlWithName.exists() || notebookHtmlWithName.length() == 0) {
+            throw new RuntimeException(notebookHtmlWithName + "生成文件失败");
+        }
+    }
+
+    public static String filterIllegalCharOfFilePath(String str) {
+
+        return str.replaceAll("/", "")
+                .replaceAll(":", "")
+                .replaceAll("\\*", "")
+                .replaceAll("\\?", "")
+                .replaceAll("\"", "")
+                .replaceAll("<", "")
+                .replaceAll(">", "")
+                .replaceAll("\\|", "");
     }
 
 }

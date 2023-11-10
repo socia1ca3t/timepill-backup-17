@@ -28,7 +28,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     private final List<NoteBook> allNotebookList = super.getAllNotebooks();
 
-    private final List<ImgDownloadInfo> needDownloadImgs;
+    private List<ImgDownloadInfo> needDownloadImgs;
     private List<Diary> allDiaryList;
     private List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList;
 
@@ -37,12 +37,10 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
         super(userInfo, new BackupInfo(userInfo.getName(),
                 Backuper.Type.ALL, userInfo.getId()),
                 new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
-
-        initData();
-        needDownloadImgs = doHTMLSrcPathSet();
     }
 
-    private void initData() {
+    @Override
+    protected void initData() {
 
         allDiaryList = new ArrayList<>();
         notebookAndItsDiariesDTOList = new ArrayList<>();
@@ -58,7 +56,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
                         notebookAndItsDiariesDTOList.add(new NotebookAndItsDiariesDTO(noteBook, singleNotbookDiary));
                     });
         }
-
+        needDownloadImgs = doHTMLSrcPathSet();
     }
 
     private List<ImgDownloadInfo> doHTMLSrcPathSet() {
@@ -95,8 +93,6 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     }
 
 
-
-
     @Override
     public List<ImgDownloadInfo> getAllImageDownloadInfo() {
 
@@ -115,12 +111,26 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
             log.info("准备[{}]的第{}个日记本[{}]", userInfo.getName(), num.incrementAndGet(), noteBook.getName());
 
             String html = BackupUtil.generateSingleNotebookHTML(noteBookAndItsDiariesDTO, getDiaryTemplatePath());
-            String targetFileURLWithId = getGenerateFilesPath() + "notebooks/" + noteBook.getId() + ".html";
-            String targetFileURLWithName = getGenerateFilesPath() + "notebooks/" + noteBook.getId() + "_" + noteBook.getName() + ".html";
 
-            BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURLWithId));
-            BackupUtil.copyFile(html.getBytes(StandardCharsets.UTF_8), new File(targetFileURLWithName));
+            String targetFileURLWithId = getGenerateFilesPath() + "notebooks/" + noteBook.getId() + ".html";
+            String targetFileURLWithName = getGenerateFilesPath() + "notebooks/" + noteBook.getId() + "_"
+                    + BackupUtil.filterIllegalCharOfFilePath(noteBook.getName()) + ".html";
+
+            BackupUtil.generateNotebookFile(html, targetFileURLWithId, targetFileURLWithName);
         });
+
+
+        File files = new File(getGenerateFilesPath() + "notebooks/");
+        File[] allHTMLFiles = files.listFiles((file, fileName) -> fileName.endsWith("html"));
+
+        log.info("共生成日记本的 HTML {} 个", allHTMLFiles.length);
+        if (allHTMLFiles.length != notebookAndItsDiariesDTOList.size() * 2) {
+
+            throw new RuntimeException(String.format("日记本的 HTML 文件生成异常，重新生成，正确数量{}，实际数量{}",
+                                                    notebookAndItsDiariesDTOList.size() * 2,
+                                                    allHTMLFiles.length));
+        }
+
     }
 
     private void commonFileGenerate() {

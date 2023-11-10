@@ -48,13 +48,16 @@ public abstract class AbstractHTMLBackuper implements Backuper {
     public File execute() {
 
         final File targetZipFile = new File(getBackupZipFilePath());
-        if (targetZipFile.exists()) {
+        if (targetZipFile.exists() && targetZipFile.length() != 0) {
 
             monitor.updateState(State.FINISHED);
             return targetZipFile;
         }
 
         try {
+            // 初始化所有数据
+            initData();
+
             // 下载所有图片
             CompletableFuture<Void> downloadAllImg = CompletableFuture.runAsync(() -> ImgDownloaderClient
                                                                             .createSyncMode(getAllImageDownloadInfo())
@@ -81,6 +84,10 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         return targetZipFile;
     }
 
+    /**
+     * 初始化数据
+     */
+    protected abstract void initData();
 
     protected abstract File generateFiles();
 
@@ -117,6 +124,8 @@ public abstract class AbstractHTMLBackuper implements Backuper {
 
         return currentUserTimepillApiService.getCachableDiaryList(notebookId);
     }
+
+
 
     @Override
     public String getBackupZipFilePath() {
