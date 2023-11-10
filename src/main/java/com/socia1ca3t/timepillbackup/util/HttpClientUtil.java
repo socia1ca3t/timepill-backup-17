@@ -2,6 +2,7 @@ package com.socia1ca3t.timepillbackup.util;
 
 import lombok.SneakyThrows;
 import org.apache.hc.client5.http.HttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
@@ -10,6 +11,7 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.TimeValue;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 import javax.net.ssl.SSLContext;
@@ -33,6 +35,7 @@ public class HttpClientUtil {
 
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
                                                 .setConnectionManager(poolingConnectionManager())
+                                                .setRetryStrategy(new DefaultHttpRequestRetryStrategy(5, TimeValue.ofSeconds(3L)))
                                                 .evictExpiredConnections();
 
         if (interceptor != null) {
