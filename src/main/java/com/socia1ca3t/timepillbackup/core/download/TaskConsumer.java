@@ -38,7 +38,15 @@ public class TaskConsumer {
                     if (task != null) {
 
                         logger.info("{},将任务提交到线程池...", task.hashCode());
-                        threadPool.submit(() -> runTaskFunc.accept(task));
+                        try {
+                            threadPool.submit(() -> runTaskFunc.accept(task));
+                        } catch (Exception e) {
+
+                            logger.error("提交任务到线程池异常", e);
+                            task.setDelay(1, TimeUnit.MINUTES);
+                            addTask(task);
+                        }
+
                     }
 
                 } catch (Exception e) {
@@ -101,7 +109,7 @@ public class TaskConsumer {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(3); // 设置核心线程数
         executor.setMaxPoolSize(6); // 设置最大线程数
-        executor.setQueueCapacity(1000); // 设置队列容量
+        executor.setQueueCapacity(10000); // 设置队列容量
         executor.setThreadNamePrefix("Timepill-API-Thread-"); // 设置线程名称前缀
         executor.initialize(); // 初始化线程池
         return executor;
