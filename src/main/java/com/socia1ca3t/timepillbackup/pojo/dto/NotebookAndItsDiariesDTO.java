@@ -9,8 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 public class NotebookAndItsDiariesDTO {
 
-    private NoteBook noteBook;
+    private NotebookDTO noteBook;
 
-    private List<Diary> diarieList;
+    private List<DiaryDTO> diarieList;
 
 }

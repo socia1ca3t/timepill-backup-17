@@ -22,12 +22,12 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
     private static final String DIARY_TEMPLATE_PATH = "download/single_diary_index";
 
     // 需要下载的日记本
-    private final NoteBook noteBook;
-    private List<Diary> allDiaryList;
+    private final NotebookDTO noteBook;
+    private List<DiaryDTO> allDiaryList;
     private List<ImgDownloadInfo> needDownloadImgs;
 
 
-    public SingleNotebookHTMLBackuper(NoteBook noteBook, UserInfo userInfo, RestTemplate userBasicAuthRestTemplate) {
+    public SingleNotebookHTMLBackuper(NotebookDTO noteBook, UserDTO userInfo, RestTemplate userBasicAuthRestTemplate) {
 
 
         super(userInfo, new BackupInfo(userInfo.getName(),
@@ -35,7 +35,7 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
                 noteBook.getId()),
                 new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
 
-        NoteBook copiedNoteBook = new NoteBook();
+        NotebookDTO copiedNoteBook = new NotebookDTO();
         BeanUtils.copyProperties(noteBook, copiedNoteBook);
         this.noteBook = copiedNoteBook;
     }
@@ -47,7 +47,7 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
         this.allDiaryList = getAllDiaries(noteBook.getId());
 
         // 获取所有带有图片的日记
-        List<Diary> allImageDiaryList = allDiaryList.stream()
+        List<DiaryDTO> allImageDiaryList = allDiaryList.stream()
                 .filter(diary -> diary.getContentImgURL() != null)
                 .collect(Collectors.toList());
 

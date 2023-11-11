@@ -3,10 +3,10 @@ package com.socia1ca3t.timepillbackup.core.path;
 import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 import com.socia1ca3t.timepillbackup.core.ImgPathSetter;
 import com.socia1ca3t.timepillbackup.core.download.ImgRealDownloader;
-import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
+import com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO;
 import com.socia1ca3t.timepillbackup.pojo.dto.ImgDownloadInfo;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
 
 
     @Override
-    public ImgDownloadInfo userIcon(UserInfo userInfo) {
+    public ImgDownloadInfo userIcon(UserDTO userInfo) {
 
         String imgURL = userInfo.getCoverUrl();
         String fileName = ImgRealDownloader.getOriginalFileName(imgURL);
@@ -40,7 +40,7 @@ public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
     }
 
     @Override
-    public List<ImgDownloadInfo> notebooksCover(List<NoteBook> hasCoverNotebooks) {
+    public List<ImgDownloadInfo> notebooksCover(List<NotebookDTO> hasCoverNotebooks) {
 
 
         final List<ImgDownloadInfo> downloadList = new ArrayList<>();
@@ -66,7 +66,7 @@ public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
     }
 
     @Override
-    public List<ImgDownloadInfo> diaryImage(List<Diary> imgDiaryList) {
+    public List<ImgDownloadInfo> diaryImage(List<DiaryDTO> imgDiaryList) {
 
         final List<ImgDownloadInfo> downloadList = new ArrayList<>();
         if (CollectionUtils.isEmpty(imgDiaryList)) {

@@ -1,7 +1,7 @@
 package com.socia1ca3t.timepillbackup.util;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
+import com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
 import com.socia1ca3t.timepillbackup.pojo.vo.NotebooksOfOneYear;
 import com.socia1ca3t.timepillbackup.properties.TimepillConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,23 +37,23 @@ public class TimepillUtil {
     }
 
 
-    public static NoteBook getNotebookById(List<NoteBook> list, int id) {
+    public static NotebookDTO getNotebookById(List<NotebookDTO> list, int id) {
 
         return list.stream().filter(p -> id == p.getId())
                 .findFirst()
                 .orElse(null);
     }
 
-    public static List<NotebooksOfOneYear> groupByYear(List<NoteBook> noteBooks) {
+    public static List<NotebooksOfOneYear> groupByYear(List<NotebookDTO> noteBooks) {
 
         final List<NotebooksOfOneYear> notebooksGroup = new ArrayList<>();
-        for (NoteBook noteBook : noteBooks) {
+        for (NotebookDTO noteBook : noteBooks) {
 
             int year = LocalDate.parse(noteBook.getCreateDate()).getYear();
 
             if (notebooksGroup.isEmpty() || notebooksGroup.stream().noneMatch(group -> group.getYear() == year)) {
 
-                List<NoteBook> list = new ArrayList<>();
+                List<NotebookDTO> list = new ArrayList<>();
                 list.add(noteBook);
                 notebooksGroup.add(new NotebooksOfOneYear(year, list));
             } else {
@@ -75,7 +75,7 @@ public class TimepillUtil {
     }
 
 
-    public static String render2html(final NoteBook noteBook, final List<Diary> diarys) {
+    public static String render2html(final NotebookDTO noteBook, final List<DiaryDTO> diarys) {
 
         final Map<String, Object> context = new HashMap<>();
         context.put("diarys", diarys);
@@ -86,7 +86,7 @@ public class TimepillUtil {
     }
 
 
-    public static String render2html(final List<Diary> diarys, String templateName) {
+    public static String render2html(final List<DiaryDTO> diarys, String templateName) {
 
         Context context = new Context();
         context.setVariable("diarys", diarys);

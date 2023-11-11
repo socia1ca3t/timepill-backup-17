@@ -1,6 +1,6 @@
 package com.socia1ca3t.timepillbackup.security;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -13,11 +13,11 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final UserInfo user;
+    private final UserDTO user;
     private final RestTemplate userBindBasicAuthRestTemplate;
     private static final List<GrantedAuthority> ROLE_USER = Collections.unmodifiableList(AuthorityUtils.createAuthorityList("ROLE_USER"));
 
-    CustomUserDetails(UserInfo user, RestTemplate userBindBasicAuthRestTemplate) {
+    CustomUserDetails(UserDTO user, RestTemplate userBindBasicAuthRestTemplate) {
 
         this.user = user;
         this.userBindBasicAuthRestTemplate = userBindBasicAuthRestTemplate;
@@ -58,9 +58,9 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    public UserInfo getUser() {
+    public UserDTO getUser() {
 
-        UserInfo copiedUserInfo = new UserInfo();
+        UserDTO copiedUserInfo = new UserDTO();
         BeanUtils.copyProperties(user, copiedUserInfo);
         return copiedUserInfo;
     }

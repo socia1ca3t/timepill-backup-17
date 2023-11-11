@@ -1,7 +1,7 @@
 package com.socia1ca3t.timepillbackup.pojo.vo;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -15,10 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 public class HomePageVO implements Serializable {
 
-    private UserInfo userInfo;
+    private UserDTO userInfo;
 
     private NotebookStatisticDataVO userData;
 
-    private List<NoteBook> myNotebooks;
+    private List<NotebookDTO> myNotebooks;
 
 }

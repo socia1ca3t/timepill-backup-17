@@ -415,10 +415,6 @@
   }, {
     "pattern":"\\Qorg/thymeleaf/thymeleaf.properties\\E"
   }, {
-    "pattern":"\\Qstatic/images/animate_bird.gif\\E"
-  }, {
-    "pattern":"\\Qstatic/images/photographer-mountains-catches-a-shot.gif\\E"
-  }, {
     "pattern":"\\Qstatic/templates/\\E"
   }, {
     "pattern":"\\Qstatic/templates/diary_index.html\\E"

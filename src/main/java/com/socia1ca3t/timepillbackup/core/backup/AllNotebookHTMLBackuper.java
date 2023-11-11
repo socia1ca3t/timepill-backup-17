@@ -26,13 +26,13 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     public static final String USER_HOME_TEMPLATE_PATH = "download/user_home_page";
 
-    private final List<NoteBook> allNotebookList = super.getAllNotebooks();
+    private final List<NotebookDTO> allNotebookList = super.getAllNotebooks();
 
     private List<ImgDownloadInfo> needDownloadImgs;
-    private List<Diary> allDiaryList;
+    private List<DiaryDTO> allDiaryList;
     private List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList;
 
-    public AllNotebookHTMLBackuper(UserInfo userInfo, RestTemplate userBasicAuthRestTemplate) {
+    public AllNotebookHTMLBackuper(UserDTO userInfo, RestTemplate userBasicAuthRestTemplate) {
 
         super(userInfo, new BackupInfo(userInfo.getName(),
                 Backuper.Type.ALL, userInfo.getId()),
@@ -51,7 +51,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
             allNotebookList.stream().parallel()
                     .forEach(noteBook -> {
 
-                        List<Diary> singleNotbookDiary = super.getAllDiaries(noteBook.getId());
+                        List<DiaryDTO> singleNotbookDiary = super.getAllDiaries(noteBook.getId());
                         allDiaryList.addAll(singleNotbookDiary);
                         notebookAndItsDiariesDTOList.add(new NotebookAndItsDiariesDTO(noteBook, singleNotbookDiary));
                     });
@@ -61,7 +61,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
     private List<ImgDownloadInfo> doHTMLSrcPathSet() {
 
-        List<Diary> allImageDiaryList = null;
+        List<DiaryDTO> allImageDiaryList = null;
 
         if (!allDiaryList.isEmpty()) {
             // 获取所有图片日记
@@ -107,7 +107,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
         AtomicInteger num = new AtomicInteger(0);
         notebookAndItsDiariesDTOList.forEach(noteBookAndItsDiariesDTO -> {
 
-            NoteBook noteBook = noteBookAndItsDiariesDTO.getNoteBook();
+            NotebookDTO noteBook = noteBookAndItsDiariesDTO.getNoteBook();
             log.info("准备[{}]的第{}个日记本[{}]", userInfo.getName(), num.incrementAndGet(), noteBook.getName());
 
             String html = BackupUtil.generateSingleNotebookHTML(noteBookAndItsDiariesDTO, getDiaryTemplatePath());
@@ -140,14 +140,14 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
         BackupUtil.copyFile("css/bulma.min.css", getGenerateFilesPath());
         BackupUtil.copyFile("css/bulma-timeline.min.css", getGenerateFilesPath());
         BackupUtil.copyFile("js/jquery-3.1.1.min.js", getGenerateFilesPath());
-
+        BackupUtil.copyFile("icons/js/all.min.js", getGenerateFilesPath());
     }
 
 
     /**
      * 生成用户主页
      */
-    private void userHomeHTMLGenerate(UserInfo userInfo, List<NoteBook> allNotebookList) {
+    private void userHomeHTMLGenerate(UserDTO userInfo, List<NotebookDTO> allNotebookList) {
 
             NotebookStatisticDataVO statisticData = SpringContextUtil.getBean(DataAnalysisService.class)
                     .analysisNotebook(userInfo, allNotebookList);

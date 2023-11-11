@@ -8,9 +8,9 @@ import com.socia1ca3t.timepillbackup.core.path.ImgTagSrcPathSetterForHtml;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor;
 import com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor.State;
 import com.socia1ca3t.timepillbackup.pojo.dto.BackupInfo;
-import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import com.socia1ca3t.timepillbackup.service.CurrentUserTimepillApiService;
 import com.socia1ca3t.timepillbackup.util.BackupUtil;
 import com.socia1ca3t.timepillbackup.util.CompressUtil;
@@ -28,17 +28,17 @@ public abstract class AbstractHTMLBackuper implements Backuper {
 
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTMLBackuper.class);
-    protected UserInfo userInfo;
+    protected UserDTO userInfo;
     protected final ImgTagSrcPathSetterForHtml imgPathSetter = new ImgTagSrcPathSetterForHtml(new ImgPathProduceForBackup());
     private final CurrentUserTimepillApiService currentUserTimepillApiService;
     private final ProgressMonitor monitor;
 
-    AbstractHTMLBackuper(UserInfo userInfo, BackupInfo info, CurrentUserTimepillApiService currentUserTimepillApiService) {
+    AbstractHTMLBackuper(UserDTO userInfo, BackupInfo info, CurrentUserTimepillApiService currentUserTimepillApiService) {
 
         this.monitor = new ProgressMonitor(info);
         this.currentUserTimepillApiService = currentUserTimepillApiService;
 
-        UserInfo copiedUserInfo = new UserInfo();
+        UserDTO copiedUserInfo = new UserDTO();
         BeanUtils.copyProperties(userInfo, copiedUserInfo);
         this.userInfo = copiedUserInfo;
     }
@@ -115,12 +115,12 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         logger.info(targetZipFile.getName() + "文件压缩完成...");
     }
 
-    protected List<NoteBook> getAllNotebooks () {
+    protected List<NotebookDTO> getAllNotebooks () {
 
         return currentUserTimepillApiService.getCachableNotebookList();
     }
 
-    protected List<Diary> getAllDiaries (int notebookId) {
+    protected List<DiaryDTO> getAllDiaries (int notebookId) {
 
         return currentUserTimepillApiService.getCachableDiaryList(notebookId);
     }

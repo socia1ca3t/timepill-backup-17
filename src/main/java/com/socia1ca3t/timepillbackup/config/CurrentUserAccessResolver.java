@@ -1,6 +1,6 @@
 package com.socia1ca3t.timepillbackup.config;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import com.socia1ca3t.timepillbackup.security.CustomUserDetails;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
@@ -17,7 +17,7 @@ public class CurrentUserAccessResolver implements HandlerMethodArgumentResolver 
     public boolean supportsParameter(MethodParameter parameter) {
 
 
-        if (parameter.getParameterType().isAssignableFrom(UserInfo.class)
+        if (parameter.getParameterType().isAssignableFrom(UserDTO.class)
                 && parameter.hasParameterAnnotation(CurrentUser.class)) {
             return true;
         } else if (parameter.getParameterType().isAssignableFrom(RestTemplate.class)
@@ -37,7 +37,7 @@ public class CurrentUserAccessResolver implements HandlerMethodArgumentResolver 
         if (authentication != null && authentication.isAuthenticated()
                 && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
 
-            if (parameter.getParameterType().isAssignableFrom(UserInfo.class)) {
+            if (parameter.getParameterType().isAssignableFrom(UserDTO.class)) {
                 return userDetails.getUser();
 
             } else if (parameter.getParameterType().isAssignableFrom(RestTemplate.class)) {

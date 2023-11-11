@@ -5,9 +5,9 @@ import com.socia1ca3t.timepillbackup.config.CurrentUserBasicAuthRestTemplate;
 import com.socia1ca3t.timepillbackup.core.download.ImgDownloaderClient;
 import com.socia1ca3t.timepillbackup.core.path.ImgPathProduceForFrontEnd;
 import com.socia1ca3t.timepillbackup.core.path.ImgTagSrcPathSetterForHtml;
-import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import com.socia1ca3t.timepillbackup.pojo.vo.DiariesIndexVO;
 import com.socia1ca3t.timepillbackup.pojo.vo.DiariesStatisticData;
 import com.socia1ca3t.timepillbackup.pojo.vo.HomePageVO;
@@ -42,7 +42,7 @@ public class ViewController {
     protected final ImgTagSrcPathSetterForHtml imgPathSetter = new ImgTagSrcPathSetterForHtml(new ImgPathProduceForFrontEnd());
 
     @RequestMapping("/home")
-    public String userHome(@CurrentUser UserInfo userInfo,
+    public String userHome(@CurrentUser UserDTO userInfo,
                            @CurrentUserBasicAuthRestTemplate RestTemplate restTemplate,
                            Model model) {
 
@@ -51,10 +51,10 @@ public class ViewController {
         // 下载用户头像并转换路径
         ImgDownloaderClient.createSyncMode(Collections.singletonList(imgPathSetter.userIcon(userInfo))).download();
 
-        List<NoteBook> noteBooks = new CurrentUserTimepillApiService(restTemplate).getCachableNotebookList();
+        List<NotebookDTO> noteBooks = new CurrentUserTimepillApiService(restTemplate).getCachableNotebookList();
         logger.info(userInfo.getName() + "日记本数量" + noteBooks.size());
 
-        List<NoteBook> hasCoverNotebooklist = noteBooks.stream()
+        List<NotebookDTO> hasCoverNotebooklist = noteBooks.stream()
                 .filter(notebook -> notebook.getCoverImgURL() != null)
                 .collect(Collectors.toList());
 
@@ -78,7 +78,7 @@ public class ViewController {
     }
 
     @GetMapping("/notebook/{notebookId}")
-    public String notebook(@CurrentUser UserInfo userInfo,
+    public String notebook(@CurrentUser UserDTO userInfo,
                            @PathVariable int notebookId,
                            @CurrentUserBasicAuthRestTemplate RestTemplate restTemplate,
                            Model model) {
@@ -87,13 +87,13 @@ public class ViewController {
 
 
         // 下载所有日记的图片并转换
-        List<Diary> diaries = currentUserApiService.getCachableDiaryList(notebookId);
-        List<Diary> imgDiaryList = diaries.stream().filter(diary -> diary.getContentImgURL() != null).collect(Collectors.toList());
+        List<DiaryDTO> diaries = currentUserApiService.getCachableDiaryList(notebookId);
+        List<DiaryDTO> imgDiaryList = diaries.stream().filter(diary -> diary.getContentImgURL() != null).collect(Collectors.toList());
         ImgDownloaderClient.createSyncMode(imgPathSetter.diaryImage(imgDiaryList)).download();
 
         // 获取该日记
-        List<NoteBook> list = currentUserApiService.getCachableNotebookList();
-        NoteBook noteBook = TimepillUtil.getNotebookById(list, notebookId);
+        List<NotebookDTO> list = currentUserApiService.getCachableNotebookList();
+        NotebookDTO noteBook = TimepillUtil.getNotebookById(list, notebookId);
         // 分析日记本数据
         DiariesStatisticData statisticData = dataAnalysisService.analysisDiary(diaries);
         DiariesIndexVO diariesIndexVO = new DiariesIndexVO(diaries, statisticData, noteBook);

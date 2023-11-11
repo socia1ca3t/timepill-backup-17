@@ -1,6 +1,6 @@
 package com.socia1ca3t.timepillbackup.security;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import com.socia1ca3t.timepillbackup.util.HttpClientUtil;
 import com.socia1ca3t.timepillbackup.util.JacksonUtil;
 import com.socia1ca3t.timepillbackup.util.TimepillUtil;
@@ -40,10 +40,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         final RestTemplate basicAuthTemplate = getUserBindBasicAuthRestTemplate(username, password);
 
-        UserInfo user;
+        UserDTO user;
         try {
             ResponseEntity<String> entity = basicAuthTemplate.getForEntity(USER_API, String.class);
-            user = JacksonUtil.jsonToBean(entity.getBody(), UserInfo.class);
+            user = JacksonUtil.jsonToBean(entity.getBody(), UserDTO.class);
 
         } catch (HttpClientErrorException e) {
 

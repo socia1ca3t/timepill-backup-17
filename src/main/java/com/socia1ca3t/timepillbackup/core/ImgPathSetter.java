@@ -1,19 +1,19 @@
 package com.socia1ca3t.timepillbackup.core;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.Diary;
+import com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO;
 import com.socia1ca3t.timepillbackup.pojo.dto.ImgDownloadInfo;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 
 import java.util.List;
 
 public interface ImgPathSetter {
 
 
-    ImgDownloadInfo userIcon(UserInfo userInfo);
+    ImgDownloadInfo userIcon(UserDTO userInfo);
 
-    List<ImgDownloadInfo> notebooksCover(List<NoteBook> hasCoverNotebooks);
+    List<ImgDownloadInfo> notebooksCover(List<NotebookDTO> hasCoverNotebooks);
 
-    List<ImgDownloadInfo> diaryImage(List<Diary> imgDiaryList);
+    List<ImgDownloadInfo> diaryImage(List<DiaryDTO> imgDiaryList);
 
 }

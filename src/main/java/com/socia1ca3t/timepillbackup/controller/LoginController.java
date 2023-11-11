@@ -1,7 +1,7 @@
 package com.socia1ca3t.timepillbackup.controller;
 
 import com.socia1ca3t.timepillbackup.config.CurrentUser;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,7 +18,7 @@ public class LoginController {
 
 
     @GetMapping("/login")
-    public String login(@CurrentUser UserInfo user, HttpSession session, Model model) {
+    public String login(@CurrentUser UserDTO user, HttpSession session, Model model) {
 
         if (user != null) {
             return "redirect:/home";

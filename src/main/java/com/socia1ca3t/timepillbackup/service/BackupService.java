@@ -3,8 +3,8 @@ package com.socia1ca3t.timepillbackup.service;
 import com.socia1ca3t.timepillbackup.core.Backuper;
 import com.socia1ca3t.timepillbackup.core.backup.AllNotebookHTMLBackuper;
 import com.socia1ca3t.timepillbackup.core.backup.SingleNotebookHTMLBackuper;
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
-import com.socia1ca3t.timepillbackup.pojo.dto.UserInfo;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
+import com.socia1ca3t.timepillbackup.pojo.dto.UserDTO;
 import com.socia1ca3t.timepillbackup.util.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -35,18 +35,18 @@ public class BackupService {
     private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
 
 
-    public ResponseEntity<StreamingResponseBody> backupSingleNotebookToHTML(UserInfo user, String notebookId, RestTemplate userBasicAuthRestTemplate) {
+    public ResponseEntity<StreamingResponseBody> backupSingleNotebookToHTML(UserDTO user, String notebookId, RestTemplate userBasicAuthRestTemplate) {
 
 
-        List<NoteBook> list = new CurrentUserTimepillApiService(userBasicAuthRestTemplate).getCachableNotebookList();
+        List<NotebookDTO> list = new CurrentUserTimepillApiService(userBasicAuthRestTemplate).getCachableNotebookList();
 
-        NoteBook notebook = TimepillUtil.getNotebookById(list, Integer.parseInt(notebookId));
+        NotebookDTO notebook = TimepillUtil.getNotebookById(list, Integer.parseInt(notebookId));
         Backuper backuper = new SingleNotebookHTMLBackuper(notebook, user, userBasicAuthRestTemplate);
 
         return backupToHTML(notebookId, backuper, Backuper.Type.SINGLE, user.getEmail());
     }
 
-    public ResponseEntity<StreamingResponseBody> backupAllNotebookToHTML(UserInfo user, RestTemplate userBasicAuthRestTemplate) {
+    public ResponseEntity<StreamingResponseBody> backupAllNotebookToHTML(UserDTO user, RestTemplate userBasicAuthRestTemplate) {
 
         Backuper backuper = new AllNotebookHTMLBackuper(user, userBasicAuthRestTemplate);
 

@@ -1,6 +1,6 @@
 package com.socia1ca3t.timepillbackup.pojo.vo;
 
-import com.socia1ca3t.timepillbackup.pojo.dto.NoteBook;
+import com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,6 +12,6 @@ public class NotebooksOfOneYear {
 
     private int year;
 
-    private List<NoteBook> noteBooks;
+    private List<NotebookDTO> noteBooks;
 
 }

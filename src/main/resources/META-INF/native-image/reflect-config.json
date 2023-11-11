@@ -144,7 +144,7 @@
   "name":"com.fasterxml.jackson.core.ObjectCodec",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"getJsonFactory","parameterTypes":[] }, {"name":"readValues","parameterTypes":["com.fasterxml.jackson.core.JsonParser","com.fasterxml.jackson.core.type.ResolvedType"] }, {"name":"readValues","parameterTypes":["com.fasterxml.jackson.core.JsonParser","com.fasterxml.jackson.core.type.TypeReference"] }, {"name":"readValues","parameterTypes":["com.fasterxml.jackson.core.JsonParser","java.lang.Class"] }]
+  "methods":[{"name":"getJsonFactory","parameterTypes":[] }, {"name":"readValues","parameterTypes":["com.fasterxml.jackson.core.JsonParser","com.fasterxml.jackson.core.type.ResolvedType"] }, {"name":"readValues","parameterTypes":["com.fasterxml.jackson.core.JsonParser","com.fasterxml.jackson.core.type.TypeReference"] }]
 },
 {
   "name":"com.fasterxml.jackson.core.TreeCodec",
@@ -394,21 +394,21 @@
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"downloadAllNotebookForHTML","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserInfo","org.springframework.web.client.RestTemplate"] }, {"name":"downloadSingleNotebookForHTML","parameterTypes":["java.lang.String","com.socia1ca3t.timepillbackup.pojo.dto.UserInfo","org.springframework.web.client.RestTemplate"] }, {"name":"getDownloadProgress","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"downloadAllNotebookForHTML","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserDTO","org.springframework.web.client.RestTemplate"] }, {"name":"downloadSingleNotebookForHTML","parameterTypes":["java.lang.String","com.socia1ca3t.timepillbackup.pojo.dto.UserDTO","org.springframework.web.client.RestTemplate"] }, {"name":"getDownloadProgress","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"com.socia1ca3t.timepillbackup.controller.LoginController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"login","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserInfo","jakarta.servlet.http.HttpSession","org.springframework.ui.Model"] }, {"name":"notices","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"login","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserDTO","jakarta.servlet.http.HttpSession","org.springframework.ui.Model"] }, {"name":"notices","parameterTypes":[] }]
 },
 {
   "name":"com.socia1ca3t.timepillbackup.controller.ViewController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["com.socia1ca3t.timepillbackup.service.DataAnalysisService"] }, {"name":"notebook","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserInfo","int","org.springframework.web.client.RestTemplate","org.springframework.ui.Model"] }, {"name":"userHome","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserInfo","org.springframework.web.client.RestTemplate","org.springframework.ui.Model"] }]
+  "methods":[{"name":"<init>","parameterTypes":["com.socia1ca3t.timepillbackup.service.DataAnalysisService"] }, {"name":"notebook","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserDTO","int","org.springframework.web.client.RestTemplate","org.springframework.ui.Model"] }, {"name":"userHome","parameterTypes":["com.socia1ca3t.timepillbackup.pojo.dto.UserDTO","org.springframework.web.client.RestTemplate","org.springframework.ui.Model"] }]
 },
 {
   "name":"com.socia1ca3t.timepillbackup.core.backup.AbstractHTMLBackuper"
@@ -425,35 +425,53 @@
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"com.socia1ca3t.timepillbackup.pojo.dto.DiariesDTO",
+  "name":"com.socia1ca3t.timepillbackup.pojo.api.DiariesPage",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setCount","parameterTypes":["int"] }, {"name":"setItems","parameterTypes":["java.util.List"] }, {"name":"setPage","parameterTypes":["int"] }, {"name":"setPageSize","parameterTypes":["int"] }]
 },
 {
-  "name":"com.socia1ca3t.timepillbackup.pojo.dto.Diary",
+  "name":"com.socia1ca3t.timepillbackup.pojo.api.Diary",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getContentText","parameterTypes":[] }, {"name":"getImgSrc","parameterTypes":[] }, {"name":"getPostTime","parameterTypes":[] }, {"name":"setContentImgThumbURL","parameterTypes":["java.lang.String"] }, {"name":"setContentImgURL","parameterTypes":["java.lang.String"] }, {"name":"setContentText","parameterTypes":["java.lang.String"] }, {"name":"setId","parameterTypes":["int"] }, {"name":"setNotebookId","parameterTypes":["int"] }, {"name":"setNotebookName","parameterTypes":["java.lang.String"] }, {"name":"setPostTime","parameterTypes":["java.lang.String"] }, {"name":"setUpdatedDate","parameterTypes":["java.lang.String"] }, {"name":"setUserId","parameterTypes":["int"] }]
+  "methods":[{"name":"getContentText","parameterTypes":[] }, {"name":"getPostTime","parameterTypes":[] }, {"name":"setCommentCount","parameterTypes":["int"] }, {"name":"setContentImgThumbURL","parameterTypes":["java.lang.String"] }, {"name":"setContentImgURL","parameterTypes":["java.lang.String"] }, {"name":"setContentText","parameterTypes":["java.lang.String"] }, {"name":"setId","parameterTypes":["int"] }, {"name":"setLikeCount","parameterTypes":["int"] }, {"name":"setLiked","parameterTypes":["boolean"] }, {"name":"setNotebookId","parameterTypes":["int"] }, {"name":"setNotebookName","parameterTypes":["java.lang.String"] }, {"name":"setPostTime","parameterTypes":["java.lang.String"] }, {"name":"setType","parameterTypes":["int"] }, {"name":"setUpdatedDate","parameterTypes":["java.lang.String"] }, {"name":"setUserId","parameterTypes":["int"] }]
 },
 {
-  "name":"com.socia1ca3t.timepillbackup.pojo.dto.NoteBook",
+  "name":"com.socia1ca3t.timepillbackup.pojo.api.Notebook",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getCover","parameterTypes":[] }, {"name":"getCoverImgSrc","parameterTypes":[] }, {"name":"getCoverImgURL","parameterTypes":[] }, {"name":"getCreateDate","parameterTypes":[] }, {"name":"getDescription","parameterTypes":[] }, {"name":"getExpireDate","parameterTypes":[] }, {"name":"getId","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getPrivacy","parameterTypes":[] }, {"name":"getUpdatedDate","parameterTypes":[] }, {"name":"getUserId","parameterTypes":[] }, {"name":"isHasExpired","parameterTypes":[] }, {"name":"isToPublic","parameterTypes":[] }, {"name":"setCover","parameterTypes":["int"] }, {"name":"setCoverImgSrc","parameterTypes":["java.lang.String"] }, {"name":"setCoverImgURL","parameterTypes":["java.lang.String"] }, {"name":"setCreateDate","parameterTypes":["java.lang.String"] }, {"name":"setDescription","parameterTypes":["java.lang.String"] }, {"name":"setExpireDate","parameterTypes":["java.lang.String"] }, {"name":"setHasExpired","parameterTypes":["boolean"] }, {"name":"setId","parameterTypes":["int"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setPrivacy","parameterTypes":["int"] }, {"name":"setToPublic","parameterTypes":["boolean"] }, {"name":"setUpdatedDate","parameterTypes":["java.lang.String"] }, {"name":"setUserId","parameterTypes":["int"] }]
+  "methods":[{"name":"getCover","parameterTypes":[] }, {"name":"getCoverImgURL","parameterTypes":[] }, {"name":"getCreateDate","parameterTypes":[] }, {"name":"getDescription","parameterTypes":[] }, {"name":"getExpireDate","parameterTypes":[] }, {"name":"getId","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getPrivacy","parameterTypes":[] }, {"name":"getUpdatedDate","parameterTypes":[] }, {"name":"getUserId","parameterTypes":[] }, {"name":"isHasExpired","parameterTypes":[] }, {"name":"isToPublic","parameterTypes":[] }, {"name":"setCover","parameterTypes":["int"] }, {"name":"setCoverImgURL","parameterTypes":["java.lang.String"] }, {"name":"setCreateDate","parameterTypes":["java.lang.String"] }, {"name":"setDescription","parameterTypes":["java.lang.String"] }, {"name":"setExpireDate","parameterTypes":["java.lang.String"] }, {"name":"setHasExpired","parameterTypes":["boolean"] }, {"name":"setId","parameterTypes":["int"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setPrivacy","parameterTypes":["int"] }, {"name":"setToPublic","parameterTypes":["boolean"] }, {"name":"setUpdatedDate","parameterTypes":["java.lang.String"] }, {"name":"setUserId","parameterTypes":["int"] }]
 },
 {
-  "name":"com.socia1ca3t.timepillbackup.pojo.dto.UserInfo",
+  "name":"com.socia1ca3t.timepillbackup.pojo.api.User",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"getCoverUrl","parameterTypes":[] }, {"name":"getCreated","parameterTypes":[] }, {"name":"getIconUrl","parameterTypes":[] }, {"name":"getId","parameterTypes":[] }, {"name":"getIntro","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getState","parameterTypes":[] }, {"name":"setCoverUrl","parameterTypes":["java.lang.String"] }, {"name":"setCreated","parameterTypes":["java.lang.String"] }, {"name":"setIconUrl","parameterTypes":["java.lang.String"] }, {"name":"setId","parameterTypes":["int"] }, {"name":"setIntro","parameterTypes":["java.lang.String"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setState","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllPublicMethods":true,
   "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getCoverUrl","parameterTypes":[] }, {"name":"getCreated","parameterTypes":[] }, {"name":"getEmail","parameterTypes":[] }, {"name":"getIconImgSrc","parameterTypes":[] }, {"name":"getIconUrl","parameterTypes":[] }, {"name":"getId","parameterTypes":[] }, {"name":"getIntro","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getState","parameterTypes":[] }, {"name":"setCoverUrl","parameterTypes":["java.lang.String"] }, {"name":"setCreated","parameterTypes":["java.lang.String"] }, {"name":"setEmail","parameterTypes":["java.lang.String"] }, {"name":"setIconImgSrc","parameterTypes":["java.lang.String"] }, {"name":"setIconUrl","parameterTypes":["java.lang.String"] }, {"name":"setId","parameterTypes":["int"] }, {"name":"setIntro","parameterTypes":["java.lang.String"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setState","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getImgSrc","parameterTypes":[] }]
+},
+{
+  "name":"com.socia1ca3t.timepillbackup.pojo.dto.NotebookDTO",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getCoverImgSrc","parameterTypes":[] }, {"name":"setCoverImgSrc","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"com.socia1ca3t.timepillbackup.pojo.dto.UserDTO",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getEmail","parameterTypes":[] }, {"name":"getIconImgSrc","parameterTypes":[] }, {"name":"setEmail","parameterTypes":["java.lang.String"] }, {"name":"setIconImgSrc","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"com.socia1ca3t.timepillbackup.pojo.vo.BackupProgressVO",
@@ -469,8 +487,6 @@
 },
 {
   "name":"com.socia1ca3t.timepillbackup.pojo.vo.DiariesStatisticData",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
   "queryAllPublicMethods":true,
   "methods":[{"name":"getImagesDiariesNum","parameterTypes":[] }, {"name":"getTextDiariesNum","parameterTypes":[] }]
 },
@@ -4267,11 +4283,6 @@
   "queryAllPublicMethods":true
 },
 {
-  "name":"org.springframework.web.servlet.SmartView",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true
-},
-{
   "name":"org.springframework.web.servlet.ThemeResolver",
   "queryAllDeclaredMethods":true,
   "queryAllPublicMethods":true
@@ -4477,13 +4488,11 @@
 },
 {
   "name":"org.springframework.web.servlet.view.AbstractUrlBasedView",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"afterPropertiesSet","parameterTypes":[] }, {"name":"checkResource","parameterTypes":["java.util.Locale"] }, {"name":"getUrl","parameterTypes":[] }, {"name":"setUrl","parameterTypes":["java.lang.String"] }, {"name":"toString","parameterTypes":[] }]
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.springframework.web.servlet.view.AbstractView",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"addStaticAttribute","parameterTypes":["java.lang.String","java.lang.Object"] }, {"name":"getAttributesMap","parameterTypes":[] }, {"name":"getBeanName","parameterTypes":[] }, {"name":"getContentType","parameterTypes":[] }, {"name":"getRequestContextAttribute","parameterTypes":[] }, {"name":"getStaticAttributes","parameterTypes":[] }, {"name":"isExposePathVariables","parameterTypes":[] }, {"name":"render","parameterTypes":["java.util.Map","jakarta.servlet.http.HttpServletRequest","jakarta.servlet.http.HttpServletResponse"] }, {"name":"setAttributes","parameterTypes":["java.util.Properties"] }, {"name":"setAttributesCSV","parameterTypes":["java.lang.String"] }, {"name":"setAttributesMap","parameterTypes":["java.util.Map"] }, {"name":"setBeanName","parameterTypes":["java.lang.String"] }, {"name":"setContentType","parameterTypes":["java.lang.String"] }, {"name":"setExposeContextBeansAsAttributes","parameterTypes":["boolean"] }, {"name":"setExposePathVariables","parameterTypes":["boolean"] }, {"name":"setExposedContextBeanNames","parameterTypes":["java.lang.String[]"] }, {"name":"setRequestContextAttribute","parameterTypes":["java.lang.String"] }]
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.springframework.web.servlet.view.ContentNegotiatingViewResolver",
@@ -4506,11 +4515,6 @@
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"close","parameterTypes":[] }, {"name":"shutdown","parameterTypes":[] }]
-},
-{
-  "name":"org.springframework.web.servlet.view.RedirectView",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"isRedirectView","parameterTypes":[] }]
 },
 {
   "name":"org.springframework.web.servlet.view.UrlBasedViewResolver",
