@@ -33,16 +33,20 @@ public interface Backuper {
     String getBackupZipFileName();
 
     /**
-     * 所有需要备份的文件压缩后的文件的路径
-     */
-    String getBackupZipFilePath();
-
-    /**
      * 执行备份任务
      */
     File execute();
 
     ProgressMonitor getProgressMonitor();
 
-    List<ImgDownloadInfo> getAllImageDownloadInfo();
+    List<ImgDownloadInfo> getAllImageInfoWaitForDownload();
+
+    /**
+     * 所有需要备份的文件压缩后的文件的路径
+     */
+    default String getBackupZipFilePath() {
+
+        return ImgPathProducer.FILE_BASE_PATH + "zip/" + getBackupZipFileName();
+    }
+
 }

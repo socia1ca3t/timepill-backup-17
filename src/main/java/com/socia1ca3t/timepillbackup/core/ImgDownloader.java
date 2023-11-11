@@ -8,6 +8,12 @@ public interface ImgDownloader {
         ASYNC
     }
 
+    enum ImgType {
+        USER_ICON,
+        NOTEBOOK_COVER,
+        DIARY_IMG
+    }
+
     void download();
 
 }

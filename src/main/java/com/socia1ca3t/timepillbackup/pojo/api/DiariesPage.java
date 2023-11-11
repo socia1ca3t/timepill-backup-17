@@ -3,7 +3,6 @@ package com.socia1ca3t.timepillbackup.pojo.api;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.socia1ca3t.timepillbackup.pojo.dto.DiaryDTO;
-import com.socia1ca3t.timepillbackup.pojo.vo.DiariesStatisticData;
 import lombok.Data;
 
 import java.io.Serializable;

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static com.socia1ca3t.timepillbackup.core.progress.ProgressMonitor.State.EXCEPTION;
+
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
@@ -67,7 +69,7 @@ public class BackupService {
         try {
 
             Backuper lastBackuper = BackupCacheUtil.get("HTMLBackup", prepareCode);
-            if (lastBackuper != null) {
+            if (lastBackuper != null && lastBackuper.getProgressMonitor().getState() != EXCEPTION) {
 
                 logger.info("{}文件正在准备中，直接跳转至任务进度观察界面", prepareCode);
                 return getHTMLStreamingResponseEntity("show_download_progress",

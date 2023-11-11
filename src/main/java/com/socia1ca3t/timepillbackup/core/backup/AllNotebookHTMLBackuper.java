@@ -94,7 +94,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
 
     @Override
-    public List<ImgDownloadInfo> getAllImageDownloadInfo() {
+    public List<ImgDownloadInfo> getAllImageInfoWaitForDownload() {
 
         return needDownloadImgs;
     }
@@ -126,7 +126,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
         log.info("共生成日记本的 HTML {} 个", allHTMLFiles.length);
         if (allHTMLFiles.length != notebookAndItsDiariesDTOList.size() * 2) {
 
-            throw new RuntimeException(String.format("日记本的 HTML 文件生成异常，重新生成，正确数量{}，实际数量{}",
+            throw new RuntimeException(String.format("日记本的 HTML 文件生成异常，重新生成，正确数量%d，实际数量%d",
                                                     notebookAndItsDiariesDTOList.size() * 2,
                                                     allHTMLFiles.length));
         }

@@ -76,7 +76,7 @@ public class SingleNotebookHTMLBackuper extends AbstractHTMLBackuper {
 
 
     @Override
-    public List<ImgDownloadInfo> getAllImageDownloadInfo() {
+    public List<ImgDownloadInfo> getAllImageInfoWaitForDownload() {
 
         return needDownloadImgs;
     }

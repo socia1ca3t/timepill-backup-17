@@ -1,5 +1,6 @@
 package com.socia1ca3t.timepillbackup.core.path;
 
+import com.socia1ca3t.timepillbackup.core.ImgDownloader;
 import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 import com.socia1ca3t.timepillbackup.core.ImgPathSetter;
 import com.socia1ca3t.timepillbackup.core.download.ImgRealDownloader;
@@ -36,7 +37,7 @@ public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
 
         return new ImgDownloadInfo(imgURL,
                                     imgPathProducer.getHomePageImgDownloadAbPath(userInfo.getId()),
-                                    fileName);
+                                    fileName, ImgDownloader.ImgType.USER_ICON);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
 
             downloadList.add(new ImgDownloadInfo(imgURL,
                                                 imgPathProducer.getHomePageImgDownloadAbPath(userId),
-                                                fileName));
+                                                fileName, ImgDownloader.ImgType.NOTEBOOK_COVER));
         });
 
         return downloadList;
@@ -85,7 +86,7 @@ public class ImgTagSrcPathSetterForHtml implements ImgPathSetter {
 
                 downloadList.add(new ImgDownloadInfo(imgURL,
                                                     imgPathProducer.getDiaryImgDownloadAbPath(userId, notebookId),
-                                                    fileName));
+                                                    fileName, ImgDownloader.ImgType.DIARY_IMG));
             }
         );
 

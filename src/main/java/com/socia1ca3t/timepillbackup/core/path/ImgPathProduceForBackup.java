@@ -10,14 +10,14 @@ public class ImgPathProduceForBackup extends AbstractImgPathProducer {
     @Override
     public String getDiaryImgSrcPath(int userId, int notebookId) {
 
-        return DiaryImgPathConvertor.getRelativePathForDownload();
+        return DiaryImgPathProducer.getRelativePathForDownload();
     }
 
 
     @Override
     public String getHomePageImgSrcPath(int userId) {
 
-        return HomePageImgPathConvertor.getRelativePathForDownload();
+        return HomePageImgPathProducer.getRelativePathForDownload();
     }
 
 }

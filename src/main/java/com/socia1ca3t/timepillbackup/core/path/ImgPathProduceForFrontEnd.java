@@ -10,14 +10,14 @@ public class ImgPathProduceForFrontEnd extends AbstractImgPathProducer {
     @Override
     public String getDiaryImgSrcPath(int userId, int notebookId) {
 
-        return DiaryImgPathConvertor.getRelativePathForShow(userId, notebookId);
+        return DiaryImgPathProducer.getRelativePathForShow(userId, notebookId);
     }
 
 
     @Override
     public String getHomePageImgSrcPath(int userId) {
 
-        return HomePageImgPathConvertor.getRelativePathForShow(userId);
+        return HomePageImgPathProducer.getRelativePathForShow(userId);
     }
 
 }
