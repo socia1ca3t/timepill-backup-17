@@ -1,6 +1,7 @@
 <h1>胶囊日记一键备份项目</h1>
 
 本项目基于胶囊官方提供的开放接口，实现了胶囊日记一键备份下载功能。备份文件的格式为HTML离线文档。
+<br/>
 下载程序，双击运行，即可在自己的电脑上安全地备份。
 
 ![example](https://github.com/socia1ca3t/timepill-backup/assets/147909308/a681bc57-4331-4573-97e8-d6437d2cb82a)
@@ -14,7 +15,7 @@
 
 <h3>使用指南</h3>
 <ul>
-    <li>在 windows 系统中下载 timepill-backup.exe 文件至本地。<a href="https://github.com/socia1ca3t/timepill-backup-17/releases/tag/Lasted">下载地址</a></li>
+    <li>在 windows 系统中<a href="https://github.com/socia1ca3t/timepill-backup-17/releases/download/Lasted/timepill-backup.exe">下载 timepill-backup.exe</a> 文件 </li>
     <li>双击运行，然后在浏览器地址框输入：http://localhost:10086/</li>
     <li>使用胶囊账号和密码登录</li>
 </ul>
@@ -75,7 +76,6 @@
     <li>在命令行中启动编译好的 JAR 文件：java -agentlib:native-image-agent=config-output-dir=\your\path\collection,config-write-period-secs=30,config-write-initial-delay-secs=5 -jar \your\path\timepill-backup-0.0.1-SNAPSHOT.jar</li>
     <li>项目启动后将所有功能执行一次，确保编译所需的所有元数据被添加至：\your\path\collection </li>
     <li>将 tracing agent 生成的文件放置在项目的 META-INF\native-image\ 路径下，构建镜像时会自动使用该路径内的配置文件。</li>
-    <li>注意：</li>
 </ul>
 
 
