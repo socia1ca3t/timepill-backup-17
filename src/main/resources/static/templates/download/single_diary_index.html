@@ -89,8 +89,7 @@
 
                     <p style="white-space: pre-line" th:text="${diary.getContentText()}">笔记内容</p>
                     <p class="is-marginless" th:remove="${diary.getImgSrc() == null || diary.getImgSrc() == ''} ? all">
-                        <img alt="image" class="diary-img" th:src="${diary.getImgSrc()} "
-                             onerror="javascript:setTimeout(() => { this.src=this.src; }, 1000);">
+                        <img alt="image" class="diary-img" th:src="${diary.getImgSrc()} ">
                     </p>
                 </div>
             </div>

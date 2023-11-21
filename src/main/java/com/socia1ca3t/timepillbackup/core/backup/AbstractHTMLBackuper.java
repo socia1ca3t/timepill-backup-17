@@ -28,8 +28,8 @@ public abstract class AbstractHTMLBackuper implements Backuper {
 
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTMLBackuper.class);
-    protected UserDTO userInfo;
-    protected final ImgTagSrcPathSetterForHtml imgPathSetter = new ImgTagSrcPathSetterForHtml(new ImgPathProduceForBackup());
+    protected static final ImgTagSrcPathSetterForHtml imgPathSetter = new ImgTagSrcPathSetterForHtml(new ImgPathProduceForBackup());
+    protected final UserDTO userInfo;
     private final CurrentUserTimepillApiService currentUserTimepillApiService;
     private final ProgressMonitor monitor;
 
