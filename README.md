@@ -4,7 +4,8 @@
 <br/>
 下载程序，双击运行，即可在自己的电脑上安全地备份。
 
-![example](https://github.com/socia1ca3t/timepill-backup/assets/147909308/a681bc57-4331-4573-97e8-d6437d2cb82a)
+![277158832-a681bc57-4331-4573-97e8-d6437d2cb82a](https://github.com/socia1ca3t/timepill-backup-17/assets/147909308/9ddc1a26-6fb6-4b72-b1e4-78d7003a728e)
+
 
 <h3>功能介绍</h3>
 <ul>
