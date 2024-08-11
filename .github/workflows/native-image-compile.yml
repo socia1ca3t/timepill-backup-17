@@ -1,108 +1,74 @@
-name: Build Native Images
+name: Build GraalVM Native Image
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    tags:
+      - 'v*.*.*'  # 只有当推送 tag 时才会触发这个工作流
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
-        platform: [macos, windows]
-        include:
-          - os: macos-latest
-            platform: macos
-            file_ext: ""
-            graalvm_tar: graalvm-ce-java17-darwin-amd64-22.3.0.tar.gz
-            graalvm_dir: graalvm-ce-java17-22.3.0/Contents/Home
-          - os: windows-latest
-            platform: windows
-            file_ext: ".exe"
-            graalvm_tar: graalvm-ce-java17-windows-amd64-22.3.0.zip
-            graalvm_dir: graalvm-ce-java17-22.3.0
-
+        os: [macos-latest, windows-latest]  # 定义需要运行的操作系统
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'  # 你也可以选择其他的 JDK 发行版
 
-    - name: Install GraalVM
-      run: |
-        if [ "${{ matrix.os }}" == "macos-latest" ]; then
-          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/${{ matrix.graalvm_tar }} -o graalvm.tar.gz
-          tar -xzf graalvm.tar.gz
-          export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/${{ matrix.graalvm_dir }}
-        else
-          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/${{ matrix.graalvm_tar }} -o graalvm.zip
-          unzip graalvm.zip
-          export GRAALVM_HOME=${{ matrix.graalvm_dir }}
-        fi
-        export PATH=$GRAALVM_HOME/bin:$PATH
-        gu install native-image
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.0'  # 请根据需要选择 GraalVM 的版本
+          java-version: '17'
+          components: native-image
 
-    - name: Build with Maven
-      run: |
-        export GRAALVM_HOME=${{ matrix.graalvm_dir }}
-        export PATH=$GRAALVM_HOME/bin:$PATH
-        mvn -Pnative clean package
+      - name: Build with Maven
+        run: mvn -Pnative native:compile -DskipTests
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: native-image-${{ matrix.platform }}
-        path: target/*${{ matrix.file_ext }}
+      - name: Archive native image
+        if: runner.os == 'macOS'
+        run: mv target/your-application-name your-application-name-macos
+      - name: Archive native image
+        if: runner.os == 'Windows'
+        run: mv target/your-application-name.exe your-application-name-windows.exe
+
+      - name: Upload native image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: native-image-${{ matrix.os }}
+          path: ${{ runner.os == 'macOS' && 'timepill-backup-macos' || 'timepill-backup-windows.exe' }}
 
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download macOS artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: native-image-macos
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: native-image-macos
+          path: ./dist
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: native-image-windows
+          path: ./dist
 
-    - name: Download Windows artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: native-image-windows
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v1.0.1  # 可以根据需要动态生成版本号
-        release_name: Release v1.0.1
-        draft: false
-        prerelease: false
-
-    - name: Upload macOS Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: target/*macos
-        asset_name: native-image-macos
-        asset_content_type: application/octet-stream
-
-    - name: Upload Windows Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: target/*windows.exe
-        asset_name: native-image-windows.exe
-        asset_content_type: application/octet-stream
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/timepill-backup-macos
+            dist/timepill-backup-windows.exe
