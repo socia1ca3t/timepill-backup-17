@@ -1,97 +1,108 @@
-name: native-image-compile
+name: Build Native Images
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  native-image-compile-on-host:
-    runs-on: ${{ matrix.os }}
+  build:
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest]
-        graal_version: [21.2.0.r11-grl]
+        os: [macos-latest, windows-latest]
+        platform: [macos, windows]
+        include:
+          - os: macos-latest
+            platform: macos
+            file_ext: ""
+            graalvm_tar: graalvm-ce-java17-darwin-amd64-22.3.0.tar.gz
+            graalvm_dir: graalvm-ce-java17-22.3.0/Contents/Home
+          - os: windows-latest
+            platform: windows
+            file_ext: ".exe"
+            graalvm_tar: graalvm-ce-java17-windows-amd64-22.3.0.zip
+            graalvm_dir: graalvm-ce-java17-22.3.0
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Cache SDKMAN installation
-      uses: actions/cache@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
       with:
-        path: ~/.sdkman
-        key: ${{ runner.os }}-sdkman-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-sdkman-
+        java-version: '17'
+        distribution: 'temurin'
 
-    - name: Install SDKMAN and GraalVM
+    - name: Install GraalVM
       run: |
-        curl -s "https://get.sdkman.io" | bash
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
-        sdk install java ${{ matrix.graal_version }}
-        java -version
-
-    - name: Install GraalVM Native Image
-      run: |
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        if [ "${{ matrix.os }}" == "macos-latest" ]; then
+          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/${{ matrix.graalvm_tar }} -o graalvm.tar.gz
+          tar -xzf graalvm.tar.gz
+          export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/${{ matrix.graalvm_dir }}
+        else
+          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/${{ matrix.graalvm_tar }} -o graalvm.zip
+          unzip graalvm.zip
+          export GRAALVM_HOME=${{ matrix.graalvm_dir }}
+        fi
+        export PATH=$GRAALVM_HOME/bin:$PATH
         gu install native-image
-        native-image --version
 
-    - name: Install Maven, that uses GraalVM for later builds
+    - name: Build with Maven
       run: |
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
-        sdk install maven
-        mvn --version
+        export GRAALVM_HOME=${{ matrix.graalvm_dir }}
+        export PATH=$GRAALVM_HOME/bin:$PATH
+        mvn -Pnative clean package
 
-    - name: Run GraalVM Native Image compilation of Spring Boot App
-      run: |
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
-        mvn -B clean package -Pnative --no-transfer-progress
-
-    - name: Upload Native Image Artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: native-image-${{ runner.os }}
-        path: target/*
+        name: native-image-${{ matrix.platform }}
+        path: target/*${{ matrix.file_ext }}
 
   release:
-    needs: native-image-compile-on-host
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Download macOS artifact
       uses: actions/download-artifact@v3
       with:
-        name: native-image-macOS-latest
+        name: native-image-macos
 
     - name: Download Windows artifact
       uses: actions/download-artifact@v3
       with:
-        name: native-image-windows-latest
+        name: native-image-windows
 
-    - name: Create GitHub Release
+    - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v1.0.1  # 可根据需要动态生成版本号
-        release_name: Native Image Release v1.0.0
+        tag_name: v1.0.1  # 可以根据需要动态生成版本号
+        release_name: Release v1.0.1
         draft: false
         prerelease: false
 
-    - name: Upload macOS Native Image to Release
+    - name: Upload macOS Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: native-image-macOS-latest
+        asset_path: target/*macos
         asset_name: native-image-macos
         asset_content_type: application/octet-stream
 
-    - name: Upload Windows Native Image to Release
+    - name: Upload Windows Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: native-image-windows-latest
+        asset_path: target/*windows.exe
         asset_name: native-image-windows.exe
         asset_content_type: application/octet-stream
