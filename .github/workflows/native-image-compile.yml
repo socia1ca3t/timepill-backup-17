@@ -35,16 +35,16 @@ jobs:
 
       - name: Archive native image
         if: runner.os == 'macOS'
-        run: mv target/your-application-name your-application-name-macos
+        run: mv target/timepill-backup-17 timepill-backup-17-macos
       - name: Archive native image
         if: runner.os == 'Windows'
-        run: mv target/your-application-name.exe your-application-name-windows.exe
+        run: mv target/timepill-backup-17.exe timepill-backup-17-windows.exe
 
       - name: Upload native image as artifact
         uses: actions/upload-artifact@v3
         with:
           name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && 'timepill-backup-macos' || 'timepill-backup-windows.exe' }}
+          path: ${{ runner.os == 'macOS' && 'timepill-backup-17-macos' || 'timepill-backup-17-windows.exe' }}
 
   release:
     needs: build
@@ -71,5 +71,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/timepill-backup-macos
-            dist/timepill-backup-windows.exe
+            dist/timepill-backup-17-macos
+            dist/timepill-backup-17-windows.exe
