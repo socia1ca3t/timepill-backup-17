@@ -31,7 +31,7 @@ jobs:
           components: native-image
 
       - name: Build with Maven
-        run: mvn -Pnative native:compile -DskipTests -Dfile.encoding=UTF-8
+        run: mvn -Pnative native:compile -DskipTests
         
       - name: List target directory
         run: ls target/native
