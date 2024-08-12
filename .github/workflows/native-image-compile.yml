@@ -81,17 +81,17 @@ jobs:
       - name: Create Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: binaries-${{ github.ref_name }}
-          release_name: release-${{ github.ref_name }}
+          tag_name: binaries-${{ github.run_id }}
+          release_name: release-${{ github.run_id }}
           draft: false
           prerelease: false
 
       - name: Upload macOS binary to Release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./timepill-backup-17-macos/timepill-backup-17
@@ -101,7 +101,7 @@ jobs:
       - name: Upload Windows binary to Release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./timepill-backup-17-windows/timepill-backup-17.exe
