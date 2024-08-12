@@ -91,6 +91,13 @@
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                         <mainClass>com.socia1ca3t.MainApplication</mainClass>
+                         <outputDirectory>${project.build.directory}/native</outputDirectory>
+                         <buildArgs>
+                                  <arg>-H:EnableURLProtocols=http,https</arg>
+                         </buildArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
