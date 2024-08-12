@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'  # 只有当推送 tag 时才会触发这个工作流
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
