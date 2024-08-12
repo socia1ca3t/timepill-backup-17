@@ -32,6 +32,8 @@ jobs:
 
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests
+        env:
+          MAVEN_OPTS: "-Dfile.encoding=UTF-8"
         
       - name: List target directory
         run: ls target/native
