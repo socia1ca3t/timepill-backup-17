@@ -65,13 +65,13 @@ jobs:
       - name: Download macOS artifact
         uses: actions/download-artifact@v3
         with:
-          name: native-image-macos
+          name: timepill-backup-17
           path: ./timepill-backup-17-macos
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v3
         with:
-          name: native-image-windows
+          name: timepill-backup-17.exe
           path: ./timepill-backup-17-windows
 
       - name: Create Release
