@@ -79,6 +79,9 @@ jobs:
           name: native-image-windows-latest
           path: ./dist
           
+      - name: List target directory
+        run: ls -R ./dist
+        
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
