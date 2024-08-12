@@ -96,6 +96,8 @@
                          <outputDirectory>${project.build.directory}/native</outputDirectory>
                          <buildArgs>
                                   <arg>-H:EnableURLProtocols=http,https</arg>
+                                  <arg>-Dfile.encoding=UTF-8</arg>
+                                  <arg>--initialize-at-build-time</arg>
                          </buildArgs>
                 </configuration>
             </plugin>
