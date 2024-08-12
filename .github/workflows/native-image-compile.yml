@@ -100,7 +100,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/timepill-backup-17
-          asset_name: timepill-backup-17
+          asset_name: timepill-backup-17-macOS
           asset_content_type: application/octet-stream
 
       - name: Upload Windows binary to Release
@@ -110,6 +110,6 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/timepill-backup-17.exe
-          asset_name: timepill-backup-17.exe
+          asset_name: timepill-backup-17-windows.exe
           asset_content_type: application/octet-stream
 
