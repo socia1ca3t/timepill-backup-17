@@ -22,7 +22,10 @@ jobs:
         with:
           java-version: '17.0.7'
           distribution: 'temurin'
-
+          
+      - name: Set JVM options
+        run: echo "JAVA_OPTS=-Dfile.encoding=UTF-8" >> $GITHUB_ENV
+  
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
