@@ -26,7 +26,7 @@ jobs:
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.0'  # 请根据需要选择 GraalVM 的版本
+          version: '22.3.2'  # 请根据需要选择 GraalVM 的版本
           java-version: '17'
           components: native-image
 
