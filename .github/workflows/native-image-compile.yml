@@ -33,29 +33,32 @@ jobs:
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests
 
-      - name: Archive native image
+      - name: Rename native image (macOS)
         if: runner.os == 'macOS'
-        run: mv target/timepill-backup-17 timepill-backup-17-macos
-      - name: Archive native image
+        run: mv target/timepill-backup-17 ./timepill-backup-17-macos
+
+      - name: Rename native image (Windows)
         if: runner.os == 'Windows'
-        run: mv target/timepill-backup-17.exe timepill-backup-17-windows.exe
+        run: mv target/timepill-backup-17.exe ./timepill-backup-17-windows.exe
 
       - name: Upload native image as artifact
         uses: actions/upload-artifact@v3
         with:
           name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && 'timepill-backup-17-macos' || 'timepill-backup-17-windows.exe' }}
+          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos' || './timepill-backup-17-windows.exe' }}
 
   release:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
-      - name: Download artifacts
+      - name: Download macOS artifact
         uses: actions/download-artifact@v3
         with:
           name: native-image-macos
           path: ./dist
-      - name: Download artifacts
+
+      - name: Download Windows artifact
         uses: actions/download-artifact@v3
         with:
           name: native-image-windows
