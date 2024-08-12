@@ -34,7 +34,7 @@ jobs:
         run: mvn -Pnative native:compile -DskipTests
 
       - name: List target directory
-        run: ls -la target/native
+        run: ls target/native
 
       - name: Create output directory
         run: mkdir -p ./timepill-backup-17-macos
