@@ -99,8 +99,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/native-image-macos-latest
-          asset_name: timepill-backup-17-macos
+          asset_path: ./dist
+          asset_name: timepill-backup-17
           asset_content_type: application/octet-stream
 
       - name: Upload Windows binary to Release
@@ -109,7 +109,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/native-image-windows-latest
-          asset_name: timepill-backup-17-windows.exe
+          asset_path: ./dist
+          asset_name: timepill-backup-17.exe
           asset_content_type: application/octet-stream
 
