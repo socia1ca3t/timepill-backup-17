@@ -79,7 +79,7 @@ jobs:
           path: ./dist
           
       - name: Create Release
-        uses: actions/create-release@v2
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
