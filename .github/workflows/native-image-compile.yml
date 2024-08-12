@@ -26,8 +26,8 @@ jobs:
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.2'  # 请根据需要选择 GraalVM 的版本
-          java-version: '17'
+          java-version: '17.0.7' # for a specific JDK 17; or '17' for the latest JDK 17
+          distribution: 'graalvm' # New 'distribution' option
           components: native-image
 
       - name: Build with Maven
