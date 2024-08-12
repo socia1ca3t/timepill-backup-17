@@ -3,14 +3,14 @@ name: Build GraalVM Native Image
 on:
   push:
     tags:
-      - 'v*.*.*'  # 只有当推送 tag 时才会触发这个工作流
-  workflow_dispatch:  # 允许手动触发
+      - 'v*.*.*'
+  workflow_dispatch:
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]  # 定义需要运行的操作系统
+        os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -20,32 +20,42 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'  # 你也可以选择其他的 JDK 发行版
+          java-version: '17.0.7'
+          distribution: 'temurin'
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '17.0.7' # for a specific JDK 17; or '17' for the latest JDK 17
-          distribution: 'graalvm' # New 'distribution' option
+          java-version: '17.0.7'
+          distribution: 'graalvm'
           components: native-image
 
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests
 
+      - name: List target directory
+        run: ls -la target/native
+
+      - name: Create output directory
+        run: mkdir -p ./timepill-backup-17-macos
+
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
-        run: mv target/timepill-backup-17 ./timepill-backup-17-macos
+        run: |
+          mkdir -p ./timepill-backup-17-macos
+          mv target/native/timepill-backup-17 ./timepill-backup-17-macos/timepill-backup-17
 
       - name: Rename native image (Windows)
         if: runner.os == 'Windows'
-        run: mv target/timepill-backup-17.exe ./timepill-backup-17-windows.exe
+        run: |
+          mkdir -p ./timepill-backup-17-windows
+          mv target/native/timepill-backup-17.exe ./timepill-backup-17-windows/timepill-backup-17.exe
 
       - name: Upload native image as artifact
         uses: actions/upload-artifact@v3
         with:
           name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos' || './timepill-backup-17-windows.exe' }}
+          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows/timepill-backup-17.exe' }}
 
   release:
     needs: build
