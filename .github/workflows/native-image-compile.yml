@@ -63,8 +63,8 @@ jobs:
 
     steps:
 
-      - name: List download directory
-        run: ls ./
+      - name: List contents of the workspace
+        run: ls -R
     
       - name: Download macOS artifact
         uses: actions/download-artifact@v3
