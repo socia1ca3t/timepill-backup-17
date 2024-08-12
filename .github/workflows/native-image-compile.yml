@@ -62,6 +62,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: List download directory
+        run: ls ./
+    
       - name: Download macOS artifact
         uses: actions/download-artifact@v3
         with:
