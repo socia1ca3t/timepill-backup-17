@@ -32,14 +32,14 @@ jobs:
 
       - name: Set encoding and Build with Maven
         run: |
-          if [ $RUNNER_OS == 'Windows' ]; then
+          if [ "${{ runner.os }}" == "Windows" ]; then
             chcp 936
             mvn -Pnative native:compile -DskipTests
           else
             mvn -Pnative native:compile -DskipTests
           fi
         env:
-          MAVEN_OPTS: "${{ matrix.os == 'windows-latest' && '-Dfile.encoding=GBK' || '-Dfile.encoding=UTF-8' }}"
+          MAVEN_OPTS: "${{ runner.os == 'Windows' && '-Dfile.encoding=GBK' || '-Dfile.encoding=UTF-8' }}"
 
       - name: List target directory
         run: ls target/native
