@@ -78,8 +78,8 @@ jobs:
           & $sfxPath a -sfx"$sfxPath" -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
 
           # Clean up
-          Remove-Item -Path $tempDir -Recurse -Force
-          Remove-Item -Path $installerPath -Force
+          # Remove-Item -Path $tempDir -Recurse -Force
+          # Remove-Item -Path $installerPath -Force
 
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
