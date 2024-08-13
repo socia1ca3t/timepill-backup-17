@@ -39,6 +39,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          # Download and install 7-Zip
+          $url = "https://www.7-zip.org/a/7z1900-x64.exe"
+          $zipInstaller = "7z_installer.exe"
+          $7zipDir = "C:\Program Files\7-Zip"
+          Invoke-WebRequest -Uri $url -OutFile $zipInstaller
+          Start-Process -FilePath $zipInstaller -ArgumentList "/S /D=$7zipDir" -Wait
+
           # Create the batch file
           $batchContent = @"
           @echo off
@@ -57,9 +64,9 @@ jobs:
           Move-Item -Path $batchPath -Destination "$tempDir\run_with_utf8.bat"
 
           # Locate 7-Zip executable
-          $sfxPath = (Get-Command 7z.exe -ErrorAction SilentlyContinue).Source
-          if (-not $sfxPath) {
-            Write-Error "7-Zip not found. Please ensure it is installed and accessible in the PATH."
+          $sfxPath = Join-Path -Path $7zipDir -ChildPath "7z.exe"
+          if (-not (Test-Path $sfxPath)) {
+            Write-Error "7-Zip not found. Please ensure it is installed correctly."
             exit 1
           }
 
@@ -68,6 +75,7 @@ jobs:
 
           # Clean up
           Remove-Item -Path $tempDir -Recurse -Force
+          Remove-Item -Path $zipInstaller -Force
 
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
