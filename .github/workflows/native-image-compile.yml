@@ -21,10 +21,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17.0.7'
+          java-version: '21'
           distribution: 'temurin'
           
       - name: Set JVM options
@@ -33,7 +33,7 @@ jobs:
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '17.0.7'
+          java-version: '21'
           distribution: 'graalvm'
           components: native-image
 
