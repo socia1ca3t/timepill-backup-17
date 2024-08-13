@@ -39,12 +39,22 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Download and install 7-Zip
+          # Define URLs and paths
           $url = "https://www.7-zip.org/a/7z1900-x64.exe"
           $zipInstaller = "7z_installer.exe"
-          $7zipDir = "C:\Program Files\7-Zip"
+          $sfxCab = "7z.sfx"
+          $sfxDir = "C:\Program Files\7-Zip"
+          
+          # Download and install 7-Zip
           Invoke-WebRequest -Uri $url -OutFile $zipInstaller
-          Start-Process -FilePath $zipInstaller -ArgumentList "/S /D=$7zipDir" -Wait
+          Start-Process -FilePath $zipInstaller -ArgumentList "/S /D=$sfxDir" -Wait
+
+          # Check if 7-Zip is installed correctly
+          $sfxPath = Join-Path -Path $sfxDir -ChildPath "7z.exe"
+          if (-not (Test-Path $sfxPath)) {
+            Write-Error "7-Zip not found. Please ensure it is installed correctly."
+            exit 1
+          }
 
           # Create the batch file
           $batchContent = @"
@@ -63,15 +73,13 @@ jobs:
           Move-Item -Path "target/native/timepill-backup-17.exe" -Destination "$tempDir\timepill-backup-17.exe"
           Move-Item -Path $batchPath -Destination "$tempDir\run_with_utf8.bat"
 
-          # Locate 7-Zip executable
-          $sfxPath = Join-Path -Path $7zipDir -ChildPath "7z.exe"
-          if (-not (Test-Path $sfxPath)) {
-            Write-Error "7-Zip not found. Please ensure it is installed correctly."
-            exit 1
-          }
+          # Download SFX module
+          $sfxUrl = "https://www.7-zip.org/a/7z1900-x64.sfx"
+          $sfxPath = "$sfxDir\7z.sfx"
+          Invoke-WebRequest -Uri $sfxUrl -OutFile $sfxPath
 
           # Create a self-extracting EXE with 7-Zip
-          & $sfxPath a -sfx7z.cab -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
+          & $sfxPath a -sfx"$sfxPath" -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
 
           # Clean up
           Remove-Item -Path $tempDir -Recurse -Force
