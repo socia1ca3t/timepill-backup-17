@@ -30,37 +30,24 @@ jobs:
           distribution: 'graalvm'
           components: native-image
 
-      - name: Build with Maven (Windows)
+      - name: Build with Maven
+        run: mvn -Pnative native:compile -DskipTests
+
+      - name: Create batch file and package as self-extracting archive (Windows)
         if: runner.os == 'Windows'
         run: |
-          chcp 936
-          mvn -Pnative native:compile -DskipTests
-        env:
-          MAVEN_OPTS: '-Dfile.encoding=GBK'
-
-      - name: Build with Maven (macOS)
-        if: runner.os == 'macOS'
-        run: mvn -Pnative native:compile -DskipTests
-        env:
-          MAVEN_OPTS: '-Dfile.encoding=UTF-8'
-
-      - name: List target directory
-        run: ls target/native
-
-      - name: Create output directory
-        run: mkdir -p ./timepill-backup-17-macos
+          echo @echo off > run_with_utf8.bat
+          echo chcp 65001 >> run_with_utf8.bat
+          echo "%~dp0timepill-backup-17.exe" %%* >> run_with_utf8.bat
+          mkdir -p ./timepill-backup-17-windows
+          mv target/native/timepill-backup-17.exe ./timepill-backup-17-windows/timepill-backup-17.exe
+          7z a -sfx ./timepill-backup-17-windows/timepill-backup-17.exe ./timepill-backup-17-windows/*
 
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
         run: |
           mkdir -p ./timepill-backup-17-macos
           mv target/native/timepill-backup-17 ./timepill-backup-17-macos/timepill-backup-17
-
-      - name: Rename native image (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          mkdir -p ./timepill-backup-17-windows
-          mv target/native/timepill-backup-17.exe ./timepill-backup-17-windows/timepill-backup-17.exe
 
       - name: Upload native image as artifact
         uses: actions/upload-artifact@v4
@@ -122,4 +109,3 @@ jobs:
           asset_path: ./dist/timepill-backup-17.exe
           asset_name: timepill-backup-17-windows.exe
           asset_content_type: application/octet-stream
- 
