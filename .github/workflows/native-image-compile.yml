@@ -77,9 +77,13 @@ jobs:
           # Create a self-extracting EXE with 7-Zip
           & $sfxPath a -sfx"$sfxPath" -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
 
-          # Clean up
-          # Remove-Item -Path $tempDir -Recurse -Force
-          # Remove-Item -Path $installerPath -Force
+          # Validate the self-extracting EXE
+          if (Test-Path "timepill-backup-17-windows.exe") {
+            Write-Host "Self-extracting EXE created successfully."
+          } else {
+            Write-Error "Failed to create self-extracting EXE."
+            exit 1
+          }
 
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
