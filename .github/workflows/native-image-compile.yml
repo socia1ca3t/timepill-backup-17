@@ -12,7 +12,11 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-
+    
+    env:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
