@@ -40,19 +40,20 @@ jobs:
         shell: pwsh
         run: |
           # Define URLs and paths
-          $url = "https://www.7-zip.org/a/7z1900-x64.exe"
-          $zipInstaller = "7z_installer.exe"
-          $sfxCab = "7z.sfx"
+          $url = "https://www.7-zip.org/a/7z2408-x64.exe"
+          $installerPath = "7z2408-x64.exe"
           $sfxDir = "C:\Program Files\7-Zip"
           
           # Download and install 7-Zip
-          Invoke-WebRequest -Uri $url -OutFile $zipInstaller
-          Start-Process -FilePath $zipInstaller -ArgumentList "/S /D=$sfxDir" -Wait
+          Invoke-WebRequest -Uri $url -OutFile $installerPath
+          Start-Process -FilePath $installerPath -ArgumentList "/S /D=$sfxDir" -Wait
 
-          # Check if 7-Zip is installed correctly
-          $sfxPath = Join-Path -Path $sfxDir -ChildPath "7z.exe"
+          # Define SFX paths
+          $sfxConPath = Join-Path -Path $sfxDir -ChildPath "7zCon.sfx"
+          $sfxPath = Join-Path -Path $sfxDir -ChildPath "7z.sfx"
+
           if (-not (Test-Path $sfxPath)) {
-            Write-Error "7-Zip not found. Please ensure it is installed correctly."
+            Write-Error "7z.sfx not found. Please ensure it is installed correctly."
             exit 1
           }
 
@@ -73,17 +74,12 @@ jobs:
           Move-Item -Path "target/native/timepill-backup-17.exe" -Destination "$tempDir\timepill-backup-17.exe"
           Move-Item -Path $batchPath -Destination "$tempDir\run_with_utf8.bat"
 
-          # Download SFX module
-          $sfxUrl = "https://www.7-zip.org/a/7z1900-x64.sfx"
-          $sfxPath = "$sfxDir\7z.sfx"
-          Invoke-WebRequest -Uri $sfxUrl -OutFile $sfxPath
-
           # Create a self-extracting EXE with 7-Zip
           & $sfxPath a -sfx"$sfxPath" -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
 
           # Clean up
           Remove-Item -Path $tempDir -Recurse -Force
-          Remove-Item -Path $zipInstaller -Force
+          Remove-Item -Path $installerPath -Force
 
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
