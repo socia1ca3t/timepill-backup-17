@@ -12,10 +12,6 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    
-    env:
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
       
     steps:
       - name: Checkout code
@@ -26,9 +22,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          
-      - name: Set JVM options
-        run: echo "JAVA_OPTS=-Dfile.encoding=UTF-8" >> $GITHUB_ENV
   
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -39,8 +32,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests
-        env:
-          MAVEN_OPTS: "-Dfile.encoding=UTF-8"
         
       - name: List target directory
         run: ls target/native
