@@ -12,7 +12,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,17 +33,34 @@ jobs:
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests
 
-      - name: Create batch file and package as self-extracting archive (Windows)
+      - name: Create self-extracting archive (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          echo @echo off > run_with_utf8.bat
-          echo chcp 65001 >> run_with_utf8.bat
-          echo start "" "timepill-backup-17.exe" %%* >> run_with_utf8.bat
-          mkdir -p ./timepill-backup-17-windows
-          mv target/native/timepill-backup-17.exe ./timepill-backup-17-windows/timepill-backup-17.exe
-          7z a -sfx ./timepill-backup-17-windows/timepill-backup-17.exe ./timepill-backup-17-windows/*
-        shell: bash
-  
+          # Create the batch file
+          $batchContent = @"
+          @echo off
+          chcp 65001
+          start "" "timepill-backup-17.exe" %*
+          "@
+          $batchPath = "run_with_utf8.bat"
+          Set-Content -Path $batchPath -Value $batchContent
+
+          # Create a temporary directory
+          $tempDir = "timepill-backup-17-windows"
+          New-Item -ItemType Directory -Force -Path $tempDir
+
+          # Move the EXE and batch file to the temporary directory
+          Move-Item -Path "target/native/timepill-backup-17.exe" -Destination "$tempDir\timepill-backup-17.exe"
+          Move-Item -Path $batchPath -Destination "$tempDir\run_with_utf8.bat"
+
+          # Create a self-extracting EXE with 7-Zip
+          $sfxPath = "$env:ProgramFiles\7-Zip\7z.exe"
+          & $sfxPath a -sfx7z.cab -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
+
+          # Clean up
+          Remove-Item -Path $tempDir -Recurse -Force
+
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -54,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows/timepill-backup-17.exe' }}
+          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows/timepill-backup-17-windows.exe' }}
 
   release:
     needs: build
@@ -107,6 +124,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/timepill-backup-17.exe
+          asset_path: ./dist/timepill-backup-17-windows.exe
           asset_name: timepill-backup-17-windows.exe
           asset_content_type: application/octet-stream
