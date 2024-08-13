@@ -30,11 +30,17 @@ jobs:
           distribution: 'graalvm'
           components: native-image
 
-      - name: Build with Maven
-        run: mvn -Pnative native:compile -DskipTests
+      - name: Set encoding and Build with Maven
+        run: |
+          if [ $RUNNER_OS == 'Windows' ]; then
+            chcp 936
+            mvn -Pnative native:compile -DskipTests
+          else
+            mvn -Pnative native:compile -DskipTests
+          fi
         env:
-          MAVEN_OPTS: "-Dfile.encoding=UTF-8"
-          
+          MAVEN_OPTS: "${{ matrix.os == 'windows-latest' && '-Dfile.encoding=GBK' || '-Dfile.encoding=UTF-8' }}"
+
       - name: List target directory
         run: ls target/native
 
@@ -114,4 +120,3 @@ jobs:
           asset_path: ./dist/timepill-backup-17.exe
           asset_name: timepill-backup-17-windows.exe
           asset_content_type: application/octet-stream
-
