@@ -38,11 +38,12 @@ jobs:
         run: |
           echo @echo off > run_with_utf8.bat
           echo chcp 65001 >> run_with_utf8.bat
-          echo "%~dp0timepill-backup-17.exe" %%* >> run_with_utf8.bat
+          echo start "" "timepill-backup-17.exe" %%* >> run_with_utf8.bat
           mkdir -p ./timepill-backup-17-windows
           mv target/native/timepill-backup-17.exe ./timepill-backup-17-windows/timepill-backup-17.exe
           7z a -sfx ./timepill-backup-17-windows/timepill-backup-17.exe ./timepill-backup-17-windows/*
-
+        shell: bash
+  
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
         run: |
