@@ -12,7 +12,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,6 +32,8 @@ jobs:
 
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests
+        env:
+          MAVEN_OPTS: '-Dfile.encoding=UTF-8'
 
       - name: Create self-extracting archive (Windows)
         if: runner.os == 'Windows'
@@ -54,8 +56,14 @@ jobs:
           Move-Item -Path "target/native/timepill-backup-17.exe" -Destination "$tempDir\timepill-backup-17.exe"
           Move-Item -Path $batchPath -Destination "$tempDir\run_with_utf8.bat"
 
+          # Locate 7-Zip executable
+          $sfxPath = (Get-Command 7z.exe -ErrorAction SilentlyContinue).Source
+          if (-not $sfxPath) {
+            Write-Error "7-Zip not found. Please ensure it is installed and accessible in the PATH."
+            exit 1
+          }
+
           # Create a self-extracting EXE with 7-Zip
-          $sfxPath = "$env:ProgramFiles\7-Zip\7z.exe"
           & $sfxPath a -sfx7z.cab -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
 
           # Clean up
