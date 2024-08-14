@@ -34,12 +34,15 @@ jobs:
         run: mvn -Pnative native:compile -DskipTests
         env:
           MAVEN_OPTS: '-Dfile.encoding=UTF-8'
-
+          
+      - name: List contents of the workspace
+        run: ls -R
+        
       - name: Create self-extracting EXE using IEXPRESS (Windows)
         if: runner.os == 'Windows'
         shell: cmd
         run: |
-          iexpress.exe /N /Q /M config.sed
+          iexpress.exe /N /Q /M %GITHUB_WORKSPACE%/.github/workflows/config.sed
           
       - name: List contents of the workspace
         run: ls -R
