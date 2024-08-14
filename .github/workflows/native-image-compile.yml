@@ -35,55 +35,54 @@ jobs:
         env:
           MAVEN_OPTS: '-Dfile.encoding=UTF-8'
 
-      - name: Create self-extracting archive (Windows)
+      - name: Create self-extracting EXE using IEXPRESS (Windows)
         if: runner.os == 'Windows'
-        shell: pwsh
+        shell: cmd
         run: |
-          # Define URLs and paths
-          $url = "https://www.7-zip.org/a/7z2408-x64.exe"
-          $installerPath = "7z2408-x64.exe"
-          $sfxDir = "C:\Program Files\7-Zip"
+          echo @echo off > run_utf8.bat
+          echo chcp 65001 >> run_utf8.bat
+          echo start "" "aaa.EXE" %%* >> run_utf8.bat
           
-          # Download and install 7-Zip
-          Invoke-WebRequest -Uri $url -OutFile $installerPath
-          Start-Process -FilePath $installerPath -ArgumentList "/S /D=$sfxDir" -Wait
+          # Create IEXPRESS SED file
+          echo [Version] > config.sed
+          echo Class=IEXPRESS >> config.sed
+          echo SEDVersion=3 >> config.sed
+          echo [Options] >> config.sed
+          echo PackagePurpose=InstallApp >> config.sed
+          echo ShowInstallProgramWindow=1 >> config.sed
+          echo HideExtractAnimation=1 >> config.sed
+          echo UseLongFileName=1 >> config.sed
+          echo InsideCompressed=0 >> config.sed
+          echo CAB_FixedSize=0 >> config.sed
+          echo CAB_ResvCodeSigning=0 >> config.sed
+          echo RebootMode=N >> config.sed
+          echo InstallPrompt= >> config.sed
+          echo DisplayLicense= >> config.sed
+          echo FinishMessage= >> config.sed
+          echo TargetName=timepill-backup-17-windows.exe >> config.sed
+          echo FriendlyName=timepill-backup >> config.sed
+          echo AppLaunched=cmd.exe /c "run_utf8.bat" >> config.sed
+          echo PostInstallCmd=<None> >> config.sed
+          echo AdminQuietInstCmd= >> config.sed
+          echo UserQuietInstCmd= >> config.sed
+          echo FILE0="aaa.EXE" >> config.sed
+          echo FILE1="run_utf8.bat" >> config.sed
+          echo [SourceFiles] >> config.sed
+          echo SourceFiles0=. >> config.sed
+          echo [SourceFiles0] >> config.sed
+          echo %%FILE0%%= >> config.sed
+          echo %%FILE1%%= >> config.sed
 
-          # Define SFX paths
-          $sfxConPath = Join-Path -Path $sfxDir -ChildPath "7zCon.sfx"
-          $sfxPath = Join-Path -Path $sfxDir -ChildPath "7z.sfx"
+          # Generate the self-extracting EXE using IEXPRESS
+          iexpress.exe /N /Q /M config.sed
 
-          if (-not (Test-Path $sfxPath)) {
-            Write-Error "7z.sfx not found. Please ensure it is installed correctly."
-            exit 1
-          }
-
-          # Create the batch file
-          $batchContent = @"
-          @echo off
-          chcp 65001
-          start "" "timepill-backup-17.exe" %*
-          "@
-          $batchPath = "run_with_utf8.bat"
-          Set-Content -Path $batchPath -Value $batchContent
-
-          # Create a temporary directory
-          $tempDir = "timepill-backup-17-windows"
-          New-Item -ItemType Directory -Force -Path $tempDir
-
-          # Move the EXE and batch file to the temporary directory
-          Move-Item -Path "target/native/timepill-backup-17.exe" -Destination "$tempDir\timepill-backup-17.exe"
-          Move-Item -Path $batchPath -Destination "$tempDir\run_with_utf8.bat"
-
-          # Create a self-extracting EXE with 7-Zip
-          & $sfxPath a -sfx"$sfxPath" -t7z "timepill-backup-17-windows.exe" "$tempDir\*"
-
-          # Validate the self-extracting EXE
-          if (Test-Path "timepill-backup-17-windows.exe") {
-            Write-Host "Self-extracting EXE created successfully."
-          } else {
-            Write-Error "Failed to create self-extracting EXE."
-            exit 1
-          }
+          # Check if the file is created
+          if exist "timepill-backup-17-windows.exe" (
+            echo Self-extracting EXE created successfully.
+          ) else (
+            echo Failed to create self-extracting EXE.
+            exit /b 1
+          )
 
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
@@ -95,7 +94,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows/timepill-backup-17-windows.exe' }}
+          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows.exe' }}
 
   release:
     needs: build
