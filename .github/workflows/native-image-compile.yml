@@ -34,10 +34,11 @@ jobs:
           $repo = "timepill-backup-17" 
           $releaseTag = "release-10370406030"
           $assetName = "timepill-backup-17-windows.exe"
+          $githubToken = $env:GITHUB_TOKEN
           
           # Get the release by tag name
           $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$releaseTag" `
-                    -Headers @{ "Accept" = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
+                    -Headers @{ "Authorization" = "Bearer $githubToken"; "Accept" = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
                     
           # Get the asset download URL
           $asset = $release.assets | Where-Object { $_.name -eq $assetName }
