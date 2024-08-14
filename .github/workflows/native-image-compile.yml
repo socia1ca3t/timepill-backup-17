@@ -39,9 +39,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: |
-          echo @echo off > run_utf8.bat
-          echo chcp 65001 >> run_utf8.bat
-          echo "timepill-backup-17.exe" %* >> run_utf8.bat
+          @echo off
+            echo @echo off > run_utf8.bat
+            echo chcp 65001 >> run_utf8.bat
+            echo "timepill-backup-17.exe" %* >> run_utf8.bat
           
           @echo off
               echo [Version] >config.sed
@@ -76,7 +77,7 @@ jobs:
               echo PostInstallCmd=^<None^> >>config.sed
               echo AdminQuietInstCmd= >>config.sed
               echo UserQuietInstCmd= >>config.sed
-              echo FILE0="timepill-backup-17.exe" >>config.sed
+              echo FILE0="target/native/timepill-backup-17.exe" >>config.sed
               echo FILE1="run_utf8.bat" >>config.sed
               echo [SourceFiles] >>config.sed
               echo SourceFiles0=%~dp0 >>config.sed
