@@ -49,3 +49,11 @@ jobs:
           
           # Verify the download
           Get-Item $assetName
+
+     - name: Create self-extracting EXE using IEXPRESS (Windows)
+       if: runner.os == 'Windows'
+       shell: cmd
+       run: |
+            echo %GITHUB_WORKSPACE%
+            dir %GITHUB_WORKSPACE%\.github\workflows\
+            iexpress.exe /N /Q /M %GITHUB_WORKSPACE%\.github\workflows\config.sed
