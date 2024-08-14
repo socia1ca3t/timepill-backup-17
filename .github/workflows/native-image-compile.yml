@@ -14,104 +14,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          components: native-image
-
-      - name: Build with Maven
-        run: mvn -Pnative native:compile -DskipTests
-        env:
-          MAVEN_OPTS: '-Dfile.encoding=UTF-8'
-          
-      - name: List contents of the workspace
-        run: ls -R
-        
-      - name: Create self-extracting EXE using IEXPRESS (Windows)
-        if: runner.os == 'Windows'
-        shell: cmd
-        run: |
-              echo %GITHUB_WORKSPACE%
-              dir %GITHUB_WORKSPACE%\.github\workflows\
-              iexpress.exe /N /Q /M %GITHUB_WORKSPACE%\.github\workflows\config.sed
-          
-      - name: List contents of the workspace
-        run: ls -R
-
-      - name: Rename native image (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          mkdir -p ./timepill-backup-17-macos
-          mv target/native/timepill-backup-17 ./timepill-backup-17-macos/timepill-backup-17
-
-      - name: Upload native image as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows.exe' }}
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions: write-all
-
-    steps:
-      - name: List contents of the workspace
-        run: ls -R
-
-      - name: Download macOS artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: native-image-macos-latest
-          path: ./dist
-
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: native-image-windows-latest
-          path: ./dist
-
-      - name: List target directory
-        run: ls -R ./dist
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: binaries-${{ github.run_id }}
-          release_name: release-${{ github.run_id }}
-          draft: false
-          prerelease: false
-
-      - name: Upload macOS binary to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/timepill-backup-17
-          asset_name: timepill-backup-17-macOS
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows binary to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/timepill-backup-17-windows.exe
-          asset_name: timepill-backup-17-windows.exe
-          asset_content_type: application/octet-stream
+     - name: Check iexpress.exe availability (Windows)
+       if: runner.os == 'Windows'
+       shell: cmd
+       run: |
+          where.exe iexpress.exe
+          if %errorlevel% neq 0 (
+            echo "iexpress.exe not found. Please make sure it's installed and available in the system PATH."
+            exit 1
+          )
