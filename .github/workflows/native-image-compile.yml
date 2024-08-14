@@ -12,14 +12,37 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-
+    permissions: write-all
+    
     steps:
      - name: Check iexpress.exe availability (Windows)
        if: runner.os == 'Windows'
        shell: cmd
        run: |
           where.exe iexpress.exe
-          if %errorlevel% neq 0 (
-            echo "iexpress.exe not found. Please make sure it's installed and available in the system PATH."
-            exit 1
-          )
+
+     - name: Checkout code
+       uses: actions/checkout@v3
+
+     - name: Download release asset
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       run: |
+        # Define variables
+        REPO="socia1ca3t/timepill-backup-17"  # Replace with your repository
+        RELEASE_TAG="binaries-10370406030"  # Replace with your release tag
+        ASSET_NAME="timepill-backup-17-windows.exe"  # Replace with your asset file name
+
+        # Get the release ID from the tag
+        RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/releases/tags/$RELEASE_TAG" | jq -r '.id')
+
+        # Download the asset
+        ASSET_URL=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/releases/$RELEASE_ID/assets?name=$ASSET_NAME" | \
+          jq -r '.[0].browser_download_url')
+        
+        curl -L -o $ASSET_NAME $ASSET_URL
+
+        # Verify download
+        ls -lh $ASSET_NAME
