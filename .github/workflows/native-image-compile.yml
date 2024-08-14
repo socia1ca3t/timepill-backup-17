@@ -39,57 +39,11 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: |
-          @echo off
-            echo @echo off > run_utf8.bat
-            echo chcp 65001 >> run_utf8.bat
-            echo "timepill-backup-17.exe" %* >> run_utf8.bat
+          iexpress.exe /N /Q /M config.sed
           
-          @echo off
-              echo [Version] >config.sed
-              echo Class=IEXPRESS >>config.sed
-              echo SEDVersion=3 >>config.sed
-              echo [Options] >>config.sed
-              echo PackagePurpose=InstallApp >>config.sed
-              echo ShowInstallProgramWindow=0 >>config.sed
-              echo HideExtractAnimation=1 >>config.sed
-              echo UseLongFileName=1 >>config.sed
-              echo InsideCompressed=0 >>config.sed
-              echo CAB_FixedSize=0 >>config.sed
-              echo CAB_ResvCodeSigning=0 >>config.sed
-              echo RebootMode=N >>config.sed
-              echo InstallPrompt=%%InstallPrompt%% >>config.sed
-              echo DisplayLicense=%%DisplayLicense%% >>config.sed
-              echo FinishMessage=%%FinishMessage%% >>config.sed
-              echo TargetName=%%TargetName%% >>config.sed
-              echo FriendlyName=%%FriendlyName%% >>config.sed
-              echo AppLaunched=%%AppLaunched%% >>config.sed
-              echo PostInstallCmd=%%PostInstallCmd%% >>config.sed
-              echo AdminQuietInstCmd=%%AdminQuietInstCmd%% >>config.sed
-              echo UserQuietInstCmd=%%UserQuietInstCmd%% >>config.sed
-              echo SourceFiles=SourceFiles >>config.sed
-              echo [Strings] >>config.sed
-              echo InstallPrompt= >>config.sed
-              echo DisplayLicense= >>config.sed
-              echo FinishMessage= >>config.sed
-              echo TargetName=timepill-backup-17-windows.exe >>config.sed
-              echo FriendlyName=timepill-backup >>config.sed
-              echo AppLaunched=cmd.exe /d /c "run_utf8.bat" >>config.sed
-              echo PostInstallCmd=^<None^> >>config.sed
-              echo AdminQuietInstCmd= >>config.sed
-              echo UserQuietInstCmd= >>config.sed
-              echo FILE0="target/native/timepill-backup-17.exe" >>config.sed
-              echo FILE1="run_utf8.bat" >>config.sed
-              echo [SourceFiles] >>config.sed
-              echo SourceFiles0=%~dp0 >>config.sed
-              echo [SourceFiles0] >>config.sed
-              echo %%FILE0%%= >>config.sed
-              echo %%FILE1%%= >>config.sed
-          
-            iexpress.exe /N /Q /M config.sed
-            
       - name: List contents of the workspace
         run: ls -R
-        
+
       - name: Rename native image (macOS)
         if: runner.os == 'macOS'
         run: |
