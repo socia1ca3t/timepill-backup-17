@@ -57,3 +57,6 @@ jobs:
             echo %GITHUB_WORKSPACE%
             dir %GITHUB_WORKSPACE%\.github\workflows\
             iexpress.exe /N /Q /M %GITHUB_WORKSPACE%\.github\workflows\config.sed
+            
+     - name: List contents of the workspace
+       run: ls -R
