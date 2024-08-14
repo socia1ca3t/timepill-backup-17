@@ -39,44 +39,47 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: |
+          @echo off
           echo @echo off > run_utf8.bat
-          echo chcp 65001 >> run_utf8.bat
+          echo chcp 65001 ^>nul >> run_utf8.bat
           echo start "" "aaa.EXE" %%* >> run_utf8.bat
           
-          # Create IEXPRESS SED file
-          echo [Version] > config.sed
-          echo Class=IEXPRESS >> config.sed
-          echo SEDVersion=3 >> config.sed
-          echo [Options] >> config.sed
-          echo PackagePurpose=InstallApp >> config.sed
-          echo ShowInstallProgramWindow=1 >> config.sed
-          echo HideExtractAnimation=1 >> config.sed
-          echo UseLongFileName=1 >> config.sed
-          echo InsideCompressed=0 >> config.sed
-          echo CAB_FixedSize=0 >> config.sed
-          echo CAB_ResvCodeSigning=0 >> config.sed
-          echo RebootMode=N >> config.sed
-          echo InstallPrompt= >> config.sed
-          echo DisplayLicense= >> config.sed
-          echo FinishMessage= >> config.sed
-          echo TargetName=timepill-backup-17-windows.exe >> config.sed
-          echo FriendlyName=timepill-backup >> config.sed
-          echo AppLaunched=cmd.exe /c "run_utf8.bat" >> config.sed
-          echo PostInstallCmd=<None> >> config.sed
-          echo AdminQuietInstCmd= >> config.sed
-          echo UserQuietInstCmd= >> config.sed
-          echo FILE0="aaa.EXE" >> config.sed
-          echo FILE1="run_utf8.bat" >> config.sed
-          echo [SourceFiles] >> config.sed
-          echo SourceFiles0=. >> config.sed
-          echo [SourceFiles0] >> config.sed
-          echo %%FILE0%%= >> config.sed
-          echo %%FILE1%%= >> config.sed
+          REM Create IEXPRESS SED file
+          (
+            echo [Version]
+            echo Class=IEXPRESS
+            echo SEDVersion=3
+            echo [Options]
+            echo PackagePurpose=InstallApp
+            echo ShowInstallProgramWindow=1
+            echo HideExtractAnimation=1
+            echo UseLongFileName=1
+            echo InsideCompressed=0
+            echo CAB_FixedSize=0
+            echo CAB_ResvCodeSigning=0
+            echo RebootMode=N
+            echo InstallPrompt=
+            echo DisplayLicense=
+            echo FinishMessage=
+            echo TargetName=timepill-backup-17-windows.exe
+            echo FriendlyName=timepill-backup
+            echo AppLaunched=cmd.exe /c "run_utf8.bat"
+            echo PostInstallCmd=<None>
+            echo AdminQuietInstCmd=
+            echo UserQuietInstCmd=
+            echo FILE0="aaa.EXE"
+            echo FILE1="run_utf8.bat"
+            echo [SourceFiles]
+            echo SourceFiles0=.
+            echo [SourceFiles0]
+            echo %%FILE0%%=
+            echo %%FILE1%%=
+          ) > config.sed
 
-          # Generate the self-extracting EXE using IEXPRESS
+          REM Generate the self-extracting EXE using IEXPRESS
           iexpress.exe /N /Q /M config.sed
 
-          # Check if the file is created
+          REM Check if the file is created
           if exist "timepill-backup-17-windows.exe" (
             echo Self-extracting EXE created successfully.
           ) else (
