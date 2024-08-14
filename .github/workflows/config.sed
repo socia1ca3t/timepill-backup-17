@@ -30,7 +30,7 @@ AppLaunched=cmd.exe /d /c "run_utf8.bat"
 PostInstallCmd=<None> 
 AdminQuietInstCmd= 
 UserQuietInstCmd= 
-FILE0="target/native/timepill-backup-17.exe" 
+FILE0="timepill-backup-17-windows.exe" 
 FILE1="run_utf8.bat" 
 [SourceFiles] 
 SourceFiles0=%~dp0
