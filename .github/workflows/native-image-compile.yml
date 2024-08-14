@@ -30,17 +30,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        run: |
           # Define variables
-          $repo = "socia1ca3t/timepill-backup-17"
+          $owner = "socia1ca3t"
+          $repo = "timepill-backup-17" 
           $releaseTag = "release-10370406030"
           $assetName = "timepill-backup-17-windows.exe"
           
-          # Get the release ID from the tag
-          $releaseId = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/tags/$releaseTag" -Headers @{Authorization = "token $env:GITHUB_TOKEN"}).id
+          # Get the release by tag name
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$releaseTag" `
+                    -Headers @{ "Accept" = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
+                    
+          # Get the asset download URL
+          $asset = $release.assets | Where-Object { $_.name -eq $assetName }
+          $assetUrl = $asset.browser_download_url
           
           # Download the asset
-          $assetUrl = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/$releaseId/assets?name=$assetName" -Headers @{Authorization = "token $env:GITHUB_TOKEN"} | Select-Object -First 1).browser_download_url
-          
           Invoke-WebRequest -Uri $assetUrl -OutFile $assetName
           
-          # Verify download
+          # Verify the download
           Get-Item $assetName
