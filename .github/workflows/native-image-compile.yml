@@ -25,21 +25,22 @@ jobs:
        uses: actions/checkout@v3
 
      - name: Download release asset
+       shell: pwsh
        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        run: |
-        # Define variables
-        $repo = "socia1ca3t/timepill-backup-17"  # Replace with your repository
-        $releaseTag = "release-10370406030"  # Replace with your release tag
-        $assetName = "timepill-backup-17-windows.exe"  # Replace with your asset file name
-
-        # Get the release ID from the tag
-        $releaseId = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/tags/$releaseTag" -Headers @{Authorization = "token $env:GITHUB_TOKEN"}).id
-
-        # Download the asset
-        $assetUrl = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/$releaseId/assets?name=$assetName" -Headers @{Authorization = "token $env:GITHUB_TOKEN"} | Select-Object -First 1).browser_download_url
-
-        Invoke-WebRequest -Uri $assetUrl -OutFile $assetName
-
-        # Verify download
-        Get-Item $assetName
+          # Define variables
+          $repo = "socia1ca3t/timepill-backup-17"
+          $releaseTag = "release-10370406030"
+          $assetName = "timepill-backup-17-windows.exe"
+          
+          # Get the release ID from the tag
+          $releaseId = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/tags/$releaseTag" -Headers @{Authorization = "token $env:GITHUB_TOKEN"}).id
+          
+          # Download the asset
+          $assetUrl = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/$releaseId/assets?name=$assetName" -Headers @{Authorization = "token $env:GITHUB_TOKEN"} | Select-Object -First 1).browser_download_url
+          
+          Invoke-WebRequest -Uri $assetUrl -OutFile $assetName
+          
+          # Verify download
+          Get-Item $assetName
