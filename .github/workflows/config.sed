@@ -24,13 +24,13 @@ SourceFiles=SourceFiles
 InstallPrompt= 
 DisplayLicense= 
 FinishMessage= 
-TargetName=timepill-backup-17-windows-new.exe 
+TargetName=timepill-backup-17-windows.exe 
 FriendlyName=timepill-backup 
 AppLaunched=cmd.exe /d /c "run_utf8.bat" 
 PostInstallCmd=<None> 
 AdminQuietInstCmd= 
 UserQuietInstCmd= 
-FILE0="timepill-backup-17-windows.exe" 
+FILE0="target\native\timepill-backup-17.exe" 
 FILE1=".github\workflows\run_utf8.bat" 
 [SourceFiles] 
 SourceFiles0="D:\a\timepill-backup-17\timepill-backup-17\" 
