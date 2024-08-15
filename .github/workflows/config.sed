@@ -30,10 +30,10 @@ AppLaunched=cmd.exe /d /c "run_utf8.bat"
 PostInstallCmd=<None> 
 AdminQuietInstCmd= 
 UserQuietInstCmd= 
-FILE0="D:\a\timepill-backup-17\timepill-backup-17\timepill-backup-17-windows.exe" 
-FILE1="D:\a\timepill-backup-17\timepill-backup-17\.github\workflows\run_utf8.bat" 
+FILE0="timepill-backup-17-windows.exe" 
+FILE1=".github\workflows\run_utf8.bat" 
 [SourceFiles] 
-SourceFiles0="D:\a\timepill-backup-17\timepill-backup-17\timepill-backup-17-windows-new" 
+SourceFiles0="D:\a\timepill-backup-17\timepill-backup-17\" 
 [SourceFiles0] 
 %FILE0%= 
 %FILE1%= 
