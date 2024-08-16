@@ -196,7 +196,7 @@ public class BackupController {
 
             if (end == contentLength - 1) {
 
-                StreamingResponseBody responseStream = backupService.deleteFileAfterSendingToClient(file, resourceRegion.getResource().getFile());
+                StreamingResponseBody responseStream = backupService.deleteFileAfterSendingToClient(resourceRegion.getResource().getFile());
 
                 return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                         .headers(headers)
@@ -222,7 +222,7 @@ public class BackupController {
         } else {
 
             ResourceRegion fullResourceRegion = new ResourceRegion(resource, 0, contentLength);
-            StreamingResponseBody responseStream = backupService.deleteFileAfterSendingToClient(file, fullResourceRegion.getResource().getFile());
+            StreamingResponseBody responseStream = backupService.deleteFileAfterSendingToClient(fullResourceRegion.getResource().getFile());
 
             return ResponseEntity.status(HttpStatus.OK)
                     .headers(headers)

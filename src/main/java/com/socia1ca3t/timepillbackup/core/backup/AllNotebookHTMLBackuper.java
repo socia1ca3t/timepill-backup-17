@@ -125,6 +125,10 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
         File files = new File(baseFilePath + "notebooks/");
         File[] allHTMLFiles = files.listFiles((file, fileName) -> fileName.endsWith("html"));
 
+        if (allHTMLFiles == null) {
+            log.info("共生成日记本的 HTML 0 个");
+            return;
+        }
         log.info("共生成日记本的 HTML {} 个", allHTMLFiles.length);
         if (allHTMLFiles.length != notebookAndItsDiariesDTOList.size() * 2) {
 
@@ -172,7 +176,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     @Override
     public String getGenerateFilesPath() {
 
-        return ImgPathProducer.FILE_BASE_PATH + userInfo.getId() + "/";
+        return ImgPathProducer.FILE_BASE_PATH + userInfo.getId() + File.separator;
     }
 
     @Override

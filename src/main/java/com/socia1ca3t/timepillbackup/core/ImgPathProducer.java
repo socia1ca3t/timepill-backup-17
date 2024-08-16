@@ -1,6 +1,6 @@
 package com.socia1ca3t.timepillbackup.core;
 
-import com.socia1ca3t.timepillbackup.util.TimepillUtil;
+import java.io.File;
 
 /**
  * 获得图片下载时的绝对路径，以及在 HTML 中作为图片表示时的 src 相对路径

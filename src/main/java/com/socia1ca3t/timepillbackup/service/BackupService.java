@@ -45,21 +45,19 @@ public class BackupService {
         NotebookDTO notebook = TimepillUtil.getNotebookById(list, Integer.parseInt(notebookId));
         Backuper backuper = new SingleNotebookHTMLBackuper(notebook, user, userBasicAuthRestTemplate);
 
-        return backupToHTML(notebookId, backuper, Backuper.Type.SINGLE, user.getEmail());
+        return backupToHTML(notebookId, backuper);
     }
 
     public ResponseEntity<StreamingResponseBody> backupAllNotebookToHTML(UserDTO user, RestTemplate userBasicAuthRestTemplate) {
 
         Backuper backuper = new AllNotebookHTMLBackuper(user, userBasicAuthRestTemplate);
 
-        return backupToHTML(String.valueOf(user.getId()), backuper, Backuper.Type.ALL, user.getEmail());
+        return backupToHTML(String.valueOf(user.getId()), backuper);
     }
 
 
     public ResponseEntity<StreamingResponseBody> backupToHTML(final String prepareCode,
-                                                              final Backuper backuper,
-                                                              final Backuper.Type type,
-                                                              final String username) {
+                                                              final Backuper backuper) {
 
 
         if (!LockUtil.getInstance().tryLock(prepareCode)) {
@@ -93,7 +91,7 @@ public class BackupService {
                 logger.info("{}文件准备完毕", backuper.getBackupZipFileName());
 
                 File zipFile = prepareFilefuture.join();
-                StreamingResponseBody responseStream = deleteFileAfterSendingToClient(zipFile, zipFile);
+                StreamingResponseBody responseStream = deleteFileAfterSendingToClient(zipFile);
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + zipFile.getName())
@@ -124,7 +122,7 @@ public class BackupService {
     }
 
 
-    public StreamingResponseBody deleteFileAfterSendingToClient(File fileWaitForDeleting, File fileForSending) {
+    public StreamingResponseBody deleteFileAfterSendingToClient(File fileForSending) {
 
 
         return outputStream -> {
@@ -132,13 +130,6 @@ public class BackupService {
             try (InputStream inputStream = new FileInputStream(fileForSending)) {
 
                 IOUtils.copy(inputStream, outputStream);
-
-                if (fileWaitForDeleting.delete()) {
-                    logger.info("{}文件下载完成，删除文件成功", fileWaitForDeleting.getName());
-
-                } else {
-                    logger.info("{}文件下载完成，删除文件失败", fileWaitForDeleting.getName());
-                }
             } catch (IOException e) {
                 logger.error("响应文件异常，请重试", e);
             }

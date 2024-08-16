@@ -2,6 +2,8 @@ package com.socia1ca3t.timepillbackup.core.path;
 
 import com.socia1ca3t.timepillbackup.core.ImgPathProducer;
 
+import java.io.File;
+
 public abstract class AbstractImgPathProducer implements ImgPathProducer {
 
 
@@ -32,12 +34,20 @@ public abstract class AbstractImgPathProducer implements ImgPathProducer {
 
         public static String getRelativePathForDownload() {
 
-            return DIARY_IMG_FOLDER_NAME + "/";
+            return DIARY_IMG_FOLDER_NAME + File.separator;
         }
 
         public static String getRelativePathForShow(int userId, int notebookId) {
 
-            return "/" + userId + "/"+ NOTEBOOKS_FOLDER_NAME +"/" + notebookId + "/"+ DIARY_IMG_FOLDER_NAME +"/";
+            return File.separator
+                    + userId
+                    + File.separator
+                    + NOTEBOOKS_FOLDER_NAME
+                    + File.separator
+                    + notebookId
+                    + File.separator
+                    + DIARY_IMG_FOLDER_NAME
+                    + File.separator;
         }
 
     }
@@ -56,12 +66,12 @@ public abstract class AbstractImgPathProducer implements ImgPathProducer {
 
         public static String getRelativePathForDownload() {
 
-            return HOMEPAGE_IMG_FOLDER_NAME + "/";
+            return HOMEPAGE_IMG_FOLDER_NAME + File.separator;
         }
 
         public static String getRelativePathForShow(int userId) {
 
-            return "/" + userId + "/"+ HOMEPAGE_IMG_FOLDER_NAME +"/";
+            return File.separator + userId + File.separator + HOMEPAGE_IMG_FOLDER_NAME + File.separator;
         }
     }
 
