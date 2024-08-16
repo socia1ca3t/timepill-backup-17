@@ -7,7 +7,7 @@ import com.socia1ca3t.timepillbackup.util.TimepillUtil;
  */
 public interface ImgPathProducer {
 
-    String FILE_BASE_PATH = TimepillUtil.getConfig().fileBasePath();
+    String FILE_BASE_PATH = System.getProperty("java.io.tmpdir");
 
     String NOTEBOOKS_FOLDER_NAME = "notebooks";
     String DIARY_IMG_FOLDER_NAME = "diary-images";
