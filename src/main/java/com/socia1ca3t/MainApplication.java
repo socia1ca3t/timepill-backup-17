@@ -22,7 +22,10 @@ public class MainApplication {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // JVM退出时，删除临时文件夹
-            FileSystemUtils.deleteRecursively(new File(ImgPathProducer.FILE_BASE_PATH));
+            File temp = new File(ImgPathProducer.FILE_BASE_PATH);
+            if (temp.exists()) {
+                FileSystemUtils.deleteRecursively(temp);
+            }
         }));
     }
 }

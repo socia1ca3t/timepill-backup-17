@@ -1228,7 +1228,7 @@
 },
 {
   "name":"org.apache.coyote.AbstractProtocol",
-  "methods":[{"name":"getAddress","parameterTypes":[] }, {"name":"getLocalPort","parameterTypes":[] }, {"name":"setPort","parameterTypes":["int"] }, {"name":"setProperty","parameterTypes":["java.lang.String","java.lang.String"] }]
+  "methods":[{ "name":"getName","parameterTypes": [] }, {"name":"getAddress","parameterTypes":[] }, {"name":"getLocalPort","parameterTypes":[] }, {"name":"setPort","parameterTypes":["int"] }, {"name":"setProperty","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
 {
   "name":"org.apache.coyote.UpgradeProtocol"
