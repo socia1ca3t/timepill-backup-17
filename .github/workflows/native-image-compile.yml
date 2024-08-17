@@ -52,11 +52,21 @@ jobs:
       - name: List contents of the workspace
         run: ls -R
         
-      - name: Upload native image as artifact
+      - name: Upload native image as artifact (Windows)
+        if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: native-image-${{ matrix.os }}
-          path: ${{ runner.os == 'macOS' && './timepill-backup-17-macos/timepill-backup-17' || './timepill-backup-17-windows.exe,./timepill-backup-17-windows-auto-delete-temp-files.exe' }}
+          name: native-image-windows-latest
+          path: |
+            ./timepill-backup-17-windows.exe
+            ./timepill-backup-17-windows-auto-delete-temp-files.exe
+
+      - name: Upload native image as artifact (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-image-macos-latest
+          path: ./timepill-backup-17-macos/timepill-backup-17
 
   release:
     needs: build
