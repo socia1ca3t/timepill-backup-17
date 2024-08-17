@@ -16,6 +16,7 @@ $processRun = $false
 # 持续监控进程状态
 while (!$processRun) {
 
+	$elapsedTime += 2
     $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
 
     if ($process) {
