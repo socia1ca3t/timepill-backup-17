@@ -19,8 +19,3 @@ server:
       directory: tomcat
       pattern: common
     basedir: /opt/logs/
-
-
-
-# 所有下载文件的存放路径
-timepill.fileBasePath: /opt/temp-back-file/

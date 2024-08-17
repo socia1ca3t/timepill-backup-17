@@ -11,7 +11,6 @@ import java.util.List;
 public record TimepillConfig (
 
         List<String> roleAdmins,
-        String fileBasePath,
         String notebookBackgroudImg,
         String indexURL,
         String userHomeURL,
@@ -24,9 +23,8 @@ public record TimepillConfig (
 ) {
 
     @ConstructorBinding
-    public TimepillConfig(List<String> roleAdmins, String fileBasePath, String notebookBackgroudImg, String indexURL, String userHomeURL, String notebookURL, String apiUserURL, String apiTopicNotebookURL, String apiNotebookListURL, String apiDiaryURL, int httpCacheMinutes) {
+    public TimepillConfig(List<String> roleAdmins, String notebookBackgroudImg, String indexURL, String userHomeURL, String notebookURL, String apiUserURL, String apiTopicNotebookURL, String apiNotebookListURL, String apiDiaryURL, int httpCacheMinutes) {
         this.roleAdmins = roleAdmins;
-        this.fileBasePath = fileBasePath;
         this.notebookBackgroudImg = notebookBackgroudImg;
         this.indexURL = indexURL;
         this.userHomeURL = userHomeURL;

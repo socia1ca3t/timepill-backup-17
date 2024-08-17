@@ -29,8 +29,3 @@ spring:
   devtools:
     restart:
       enabled: false
-
-
-
-# 所有下载文件的存放路径
-timepill.fileBasePath: C:/timepill-backup/

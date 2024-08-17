@@ -34,10 +34,6 @@ spring:
   h2.console.enabled: false
   h2.console.path: /moyaDB-console
 
-
-  web.resources.static-locations: classpath:/META-INF/resources/, classpath:/static/, file:${timepill.fileBasePath}
-
-
 timepill:
   httpCacheMinutes: 10
   indexURL: https://timepill.net
