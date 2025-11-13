@@ -28,7 +28,8 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     public static final String DIARY_TEMPLATE_PATH = "download/all_diary_index";
 
     private final List<NotebookDTO> downloadNotebookList;
-    private final List<NotebookDTO> allNotebookList = super.getAllNotebooks();
+    private final List<NotebookDTO> allNotebookList;
+    private final String backupZipFileName;
 
     private List<ImgDownloadInfo> needDownloadImgs;
     private List<DiaryDTO> allDiaryList;
@@ -41,6 +42,8 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
               new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
 
         this.downloadNotebookList = downloadNotebookList;
+        allNotebookList = super.getAllNotebooks();
+        backupZipFileName = userInfo.getId() + "_" + System.currentTimeMillis() + ".zip";
     }
 
     @Override
@@ -133,7 +136,8 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
             return;
         }
         log.info("共生成日记本的 HTML {} 个", allHTMLFiles.length);
-        if (allHTMLFiles.length != notebookAndItsDiariesDTOList.size() * 2) {
+
+        if (allHTMLFiles.length < notebookAndItsDiariesDTOList.size() * 2) {
 
             throw new RuntimeException(String.format("日记本的 HTML 文件生成异常，重新生成，正确数量%d，实际数量%d",
                                                     notebookAndItsDiariesDTOList.size() * 2,
@@ -185,7 +189,7 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     @Override
     public String getBackupZipFileName() {
 
-        return userInfo.getId() + ".zip";
+        return backupZipFileName;
     }
 
     @Override

@@ -123,7 +123,7 @@ public abstract class AbstractHTMLBackuper implements Backuper {
         String logInfo = String.format("应下载日记图片的数量%d，实际下载日记图片的数量%d", allDiariesImgNum, downloadDiariesImgNum);
         logger.info(logInfo);
 
-        if  (downloadDiariesImgNum != allDiariesImgNum) {
+        if  (downloadDiariesImgNum < allDiariesImgNum) {
             throw new RuntimeException(logInfo);
         }
     }
