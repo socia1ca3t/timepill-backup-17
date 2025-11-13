@@ -104,4 +104,33 @@ public class ViewController {
         return "diary_index";
     }
 
+    @GetMapping("/downloadSomeNotebooks")
+    public String downloadSomeNotebooks(@CurrentUser UserDTO userInfo,
+                                        @CurrentUserBasicAuthRestTemplate RestTemplate restTemplate,
+                                        Model model) {
+
+        List<NotebookDTO> noteBooks = new CurrentUserTimepillApiService(restTemplate).getCachableNotebookList();
+        logger.info(userInfo.getName() + "日记本数量" + noteBooks.size());
+
+        List<NotebookDTO> hasCoverNotebooklist = noteBooks.stream()
+                .filter(notebook -> notebook.getCoverImgURL() != null)
+                .collect(Collectors.toList());
+
+        if (!hasCoverNotebooklist.isEmpty()) {
+            // 下载日记本封面并转换路径
+            ImgDownloaderClient.createSyncMode(imgPathSetter.notebooksCover(hasCoverNotebooklist)).download();
+        }
+
+        // 数据分析
+        NotebookStatisticDataVO statisticData = dataAnalysisService.analysisNotebook(userInfo, noteBooks);
+
+        // 封装所有数据
+        HomePageVO homePageVO = new HomePageVO(userInfo, statisticData, noteBooks);
+        model.addAttribute("homePageVO", homePageVO);
+        model.addAttribute("notebookMap", TimepillUtil.groupByYear(noteBooks));
+        model.addAttribute("backgroudImg", TimepillUtil.getConfig().notebookBackgroudImg());
+
+        return "download_some_notebooks";
+    }
+
 }

@@ -127,12 +127,20 @@
                 <div id="navMenu" class="navbar-menu">
                     <div class="navbar-end">
                         <a style="display: none!important;" class="navbar-item is-flex navbar-item-toggle"
+                           title="下载部分日记本"
+                           href="/downloadSomeNotebooks" target="_blank">
+                                <span class="icon">
+                                    <i class="fa-solid fa-download"></i>
+                                </span>
+                            <span>下载部分日记本</span>
+                        </a>
+                        <a style="display: none!important;" class="navbar-item is-flex navbar-item-toggle"
                            title="下载全部日记本"
                            th:href="'/download/html/notebooks/' + ${homePageVO.getUserInfo().getId()}" target="_blank">
                                 <span class="icon">
                                     <i class="fa-solid fa-download"></i>
                                 </span>
-                            <span>下载全部日记</span>
+                            <span>下载全部日记本</span>
                         </a>
                         <a style="display: none!important;" class="navbar-item is-flex navbar-item-toggle"
                            href="/notices">
@@ -315,6 +323,20 @@
                         </div>
                     </div>
                     <div class="tile">
+                        <div class="card card-background is-shadowless" style="border-bottom: 1px dashed #ddd;">
+                            <div class="card-content" style="padding:8px 19px;">
+                                <a class="is-inline-flex" style="color:#4a4a4a;" title="下载全部日记本"
+                                   href="/downloadSomeNotebooks"
+                                   target="_blank">
+                                    <span class="icon">
+                                        <i class="fa-solid fa-download"></i>
+                                    </span>
+                                    <span>下载部分日记本</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile">
                         <div class="card card-background is-shadowless">
                             <div class="card-content" style="padding:8px 19px;">
                                 <a class="is-inline-flex" style="color:#4a4a4a;" title="下载全部日记本"
@@ -323,7 +345,7 @@
                                     <span class="icon">
                                         <i class="fa-solid fa-download"></i>
                                     </span>
-                                    <span>下载全部日记</span>
+                                    <span>下载全部日记本</span>
                                 </a>
                             </div>
                         </div>

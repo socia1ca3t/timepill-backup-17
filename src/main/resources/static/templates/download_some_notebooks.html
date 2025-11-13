@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>日记备份</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+  <link rel="stylesheet" href="../css/bulma.min.css"/>
+  <link rel="stylesheet" href="../css/bulma-timeline.min.css"/>
+
+  <script type="text/javascript" src="../icons/js/all.min.js"></script>
+  <script type="text/javascript" src="../js/jquery-3.1.1.min.js"></script>
+</head>
+
+<style>
+  html {
+      background-color: #f5f5f5;
+  }
+
+  /* 统一：年份标题、日记本名称均为黑色 */
+  .year-category-title a,
+  .year-category-title span,
+  ul li a {
+      color: #4a4a4a !important;
+  }
+
+  /* UL 列表中 span 也保持灰色/黑色系，无蓝色 */
+  ul li span {
+      color: #4a4a4a;
+  }
+
+  /* 全局 a 标签颜色（原来你就是灰黑系） */
+  a {
+      color: #4a4a4a !important;
+  }
+
+  /* 年份标题下划线 */
+  .year-category-title {
+      border-bottom: 1px dashed #ddd;
+      font-weight: bold;
+  }
+
+  /* 悬浮下载按钮 */
+  #downloadSelectedBtn {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 30px;
+      z-index: 9999;
+      transition: opacity 0.3s;
+      opacity: 0.85;
+  }
+  #downloadSelectedBtn:hover {
+      opacity: 1;
+  }
+
+</style>
+
+<body>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="tile is-ancestor">
+      <div class="tile is-vertical is-parent">
+
+        <!-- ======================= 年份循环开始 ======================= -->
+        <div class="tile is-child box is-shadowless"
+             th:each="notebookOfYear, iterStat : ${notebookMap}">
+
+          <!-- 年份标题行 -->
+          <div class="columns year-category-title"
+               th:id="'year_' + ${notebookOfYear.getYear()}"
+               th:data-target="'panel_' + ${notebookOfYear.getYear()}">
+
+            <!-- 左侧：点击折叠/展开 -->
+            <div class="column is-inline-flex"
+                 style="cursor:pointer;"
+                 onclick="
+                            let panel=document.getElementById(
+                                this.parentNode.getAttribute('data-target')
+                            );
+                            panel.style.display =
+                                panel.style.display==='none'?'block':'none';
+                         ">
+                        <span class="icon">
+                          <i class="fa-solid fa-paperclip" style="color:#4a4a4a;"></i>
+                        </span>
+              <a style="position: relative;">
+                            <span th:text="${notebookOfYear.getYear() + '年的日记本'}"
+                                  style="color:#4a4a4a;">
+                                  2022年的日记本
+                            </span>
+                <span class="badge"
+                      th:text="${notebookOfYear.getNoteBooks().size()}"
+                      style="color:#4a4a4a;">8</span>
+              </a>
+            </div>
+
+            <!-- 右侧：已选数量 + 全选按钮 -->
+            <div class="column is-narrow" style="text-align:right;">
+
+                        <span class="tag is-light"
+                              style="margin-right:10px; color:#4a4a4a;"
+                              th:id="'year_selected_' + ${notebookOfYear.getYear()}">
+                            已选：0 本
+                        </span>
+
+              <button class="button is-small is-dark"
+                      th:onclick="'toggleYearSelect(' + ${notebookOfYear.getYear()} + ')'">
+                全选本年
+              </button>
+
+            </div>
+
+          </div>
+
+          <!-- 年份内容 -->
+          <div th:id="'panel_' + ${notebookOfYear.getYear()}"
+               style="padding-left:10px; margin-top:10px;">
+
+            <ul style="list-style-type: none; padding-left: 0;"
+                th:id="'list_' + ${notebookOfYear.getYear()}">
+
+              <!-- 日记本项 -->
+              <li th:each="notebook : ${notebookOfYear.getNoteBooks()}"
+                  class="is-flex is-justify-content-space-between"
+                  style="margin:8px 0; padding:4px 0; border-bottom:1px dashed #ddd;">
+
+                <div>
+                  <a th:href="'/notebook/' + ${notebook.getId()}"
+                     target="_blank"
+                     th:text="${notebook.getName()}"
+                     style="font-size:14px; color:#4a4a4a;">
+                    日记本名称
+                  </a>
+
+                  <span style="font-size:12px; margin-left:6px; color:#4a4a4a;"
+                        th:text="'(' + ${notebook.getCreateDate()} + ')'">
+                                    (2022-10-19)
+                                </span>
+                </div>
+
+                <label class="checkbox">
+                  <input type="checkbox"
+                         class="year-checkbox"
+                         th:data-year="${notebookOfYear.getYear()}"
+                         th:value="${notebook.getId()}">
+                </label>
+
+              </li>
+
+            </ul>
+          </div>
+
+        </div>
+        <!-- ======================= 年份循环结束 ======================= -->
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- ======================= JS 部分 ======================= -->
+
+<script>
+  // 全选本年
+  function toggleYearSelect(year) {
+      let checkboxes = document.querySelectorAll('input.year-checkbox[data-year="' + year + '"]');
+      let needSelect = false;
+
+      checkboxes.forEach(cb => { if (!cb.checked) needSelect = true; });
+      checkboxes.forEach(cb => cb.checked = needSelect);
+
+      updateYearCount(year);
+      updateGlobalCount();
+  }
+
+
+  // 更新某一年已选数量
+  function updateYearCount(year) {
+      let items = document.querySelectorAll('input.year-checkbox[data-year="' + year + '"]');
+      let count = 0;
+      items.forEach(cb => { if (cb.checked) count++; });
+
+      document.getElementById("year_selected_" + year).innerText =
+          "已选：" + count + " 本";
+  }
+
+
+  // 更新全局数量
+  function updateGlobalCount() {
+      let count = document.querySelectorAll("input.year-checkbox:checked").length;
+      let btn = document.getElementById("downloadSelectedBtn");
+      btn.innerText = "下载已选择的日记本（共 " + count + " 本）";
+  }
+
+
+  // 注册 checkbox 事件
+  function registerCheckboxEvents() {
+      document.querySelectorAll("input.year-checkbox").forEach(cb => {
+          cb.onchange = function() {
+              let year = cb.getAttribute("data-year");
+              updateYearCount(year);
+              updateGlobalCount();
+          };
+      });
+  }
+
+
+  // 页面加载时执行
+  document.addEventListener("DOMContentLoaded", registerCheckboxEvents);
+
+</script>
+
+
+<!-- ======================= 悬浮下载按钮 ======================= -->
+
+<button id="downloadSelectedBtn"
+        class="button is-primary is-medium is-dark" style="background-color: #000;">
+  下载已选择的日记本（共 0 本）
+</button>
+<form id="postSelectedForm"
+      method="get"
+      target="_blank"
+      action="/download/html/notebooks/some"
+      style="display:none;">
+</form>
+
+<script>
+  // 悬浮按钮：下载已选择的日记本
+  document.getElementById("downloadSelectedBtn").onclick = function () {
+
+    let selected = [];
+    document.querySelectorAll("input.year-checkbox:checked").forEach(cb => {
+        selected.push(cb.value);
+    });
+
+    if (selected.length === 0) {
+        alert("未选择日记本");
+        return;
+    }
+
+    // 清空旧数据
+    let form = document.getElementById("postSelectedForm");
+    form.innerHTML = "";
+
+    // 添加隐藏字段
+    selected.forEach(id => {
+        let input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "ids";
+        input.value = id;
+        form.appendChild(input);
+    });
+
+    // 提交 form
+    form.submit();
+  };
+
+
+  // 滚动透明效果
+  window.addEventListener('scroll', function() {
+      let btn = document.getElementById("downloadSelectedBtn");
+      btn.style.opacity = 0.4;
+
+      clearTimeout(btn._timeout);
+      btn._timeout = setTimeout(() => {
+          btn.style.opacity = 0.85;
+      }, 300);
+  });
+</script>
+
+
+</body>
+</html>

@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -48,9 +49,25 @@ public class BackupService {
         return backupToHTML(notebookId, backuper);
     }
 
+    public ResponseEntity<StreamingResponseBody> backupSomeNotebookToHTML(UserDTO user, List<Integer> notebookIds, RestTemplate userBasicAuthRestTemplate) {
+
+
+        List<NotebookDTO> allNotebookList = new CurrentUserTimepillApiService(userBasicAuthRestTemplate).getCachableNotebookList();
+
+        List<NotebookDTO> someNotebookList = new ArrayList<>();
+        for (Integer notebookId : notebookIds) {
+            someNotebookList.add(TimepillUtil.getNotebookById(allNotebookList, notebookId));
+        }
+
+        Backuper backuper = new AllNotebookHTMLBackuper(user, someNotebookList, userBasicAuthRestTemplate);
+
+        return backupToHTML(String.valueOf(user.getId()), backuper);
+    }
+
     public ResponseEntity<StreamingResponseBody> backupAllNotebookToHTML(UserDTO user, RestTemplate userBasicAuthRestTemplate) {
 
-        Backuper backuper = new AllNotebookHTMLBackuper(user, userBasicAuthRestTemplate);
+        List<NotebookDTO> allNotebookList = new CurrentUserTimepillApiService(userBasicAuthRestTemplate).getCachableNotebookList();
+        Backuper backuper = new AllNotebookHTMLBackuper(user, allNotebookList, userBasicAuthRestTemplate);
 
         return backupToHTML(String.valueOf(user.getId()), backuper);
     }

@@ -27,17 +27,20 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
     public static final String USER_HOME_TEMPLATE_PATH = "download/user_home_page";
     public static final String DIARY_TEMPLATE_PATH = "download/all_diary_index";
 
+    private final List<NotebookDTO> downloadNotebookList;
     private final List<NotebookDTO> allNotebookList = super.getAllNotebooks();
 
     private List<ImgDownloadInfo> needDownloadImgs;
     private List<DiaryDTO> allDiaryList;
     private List<NotebookAndItsDiariesDTO> notebookAndItsDiariesDTOList;
 
-    public AllNotebookHTMLBackuper(UserDTO userInfo, RestTemplate userBasicAuthRestTemplate) {
+    public AllNotebookHTMLBackuper(UserDTO userInfo, List<NotebookDTO> downloadNotebookList, RestTemplate userBasicAuthRestTemplate) {
 
-        super(userInfo, new BackupInfo(userInfo.getName(),
-                Backuper.Type.ALL, userInfo.getId()),
-                new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
+        super(userInfo,
+              new BackupInfo(userInfo.getName(), Backuper.Type.ALL, userInfo.getId()),
+              new CurrentUserTimepillApiService(userBasicAuthRestTemplate));
+
+        this.downloadNotebookList = downloadNotebookList;
     }
 
     @Override
@@ -46,10 +49,10 @@ public class AllNotebookHTMLBackuper extends AbstractHTMLBackuper {
         allDiaryList = new ArrayList<>();
         notebookAndItsDiariesDTOList = new ArrayList<>();
 
-        if (!allNotebookList.isEmpty()) {
+        if (!downloadNotebookList.isEmpty()) {
 
             // 获取所有日记
-            allNotebookList.stream().parallel()
+            downloadNotebookList.stream().parallel()
                     .forEach(noteBook -> {
 
                         List<DiaryDTO> singleNotbookDiary = super.getAllDiaries(noteBook.getId());

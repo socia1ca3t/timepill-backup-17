@@ -54,6 +54,14 @@ public class BackupController {
         return backupService.backupSingleNotebookToHTML(user, notebookId, userBasicAuthRestTemplate);
     }
 
+    @RequestMapping(value = "/html/notebooks/some",method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<StreamingResponseBody> downloadSomeForHTML(@CurrentUser UserDTO user,
+                                                 @CurrentUserBasicAuthRestTemplate RestTemplate userBasicAuthRestTemplate,
+                                                 @RequestParam List<Integer> ids) {
+
+        return backupService.backupSomeNotebookToHTML(user, ids, userBasicAuthRestTemplate);
+    }
+
 
     @RequestMapping(value = "/html/notebooks/{userId}", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<StreamingResponseBody> downloadAllNotebookForHTML(@CurrentUser UserDTO user,
