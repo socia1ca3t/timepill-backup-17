@@ -11,14 +11,16 @@
 <ul>
     <li>实时提示下载进度。</li>
     <li>一键截图单本日记。</li>
-    <li>一键下载单本日记或所有日记。</li>
+    <li>一键下载单本日记本、部分日记本、所有日记本。</li>
 </ul>
 
 <h3>使用指南</h3>
 <ul>
-    <li>在 windows 系统中<a href="https://github.com/socia1ca3t/timepill-backup-17/releases/download/Lasted/timepill-backup.exe">下载 timepill-backup.exe</a> 文件 </li>
+    <li>下载最新版本的软件(若最新版本使用异常，可尝试旧版本)<a href="https://github.com/socia1ca3t/timepill-backup-17/releases">下载地址</a></li>
     <li>双击运行，然后在浏览器地址框输入：http://localhost:10086/</li>
-    <li>使用胶囊账号和密码登录</li>
+    <li>使用胶囊账号和密码登录。</li>
+    <li>下载部分日记本时，用户主页面中也会显示所有日记本，点击未选择下载的日记本时，会显示文件不存在。(此操作是为了方便直接覆盖历史下载的文件夹中的内容，避免重复下载全部日记)。</li>
+    <li>若多次下载部分日记本，最新一次的下载，会包含之前已经下载过的所有日记本。若不想附带之前的下载，可关闭软件后重新打开。</li>
 </ul>
 
 
